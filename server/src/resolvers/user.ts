@@ -9,7 +9,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { __prod__ } from "../constants";
+import { COOKIE_NAME, __prod__ } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { EntityManager } from "@mikro-orm/postgresql";
@@ -165,8 +165,21 @@ export class UserResolver {
     return { user };
   }
 
-  @Query(() => [User])
-  users(@Ctx() { em }: MyContext): Promise<User[]> {
-    return em.find(User, {});
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        if (err) {
+          if (!__prod__) {
+            console.log(`failed to logout and destroy session, err: ${err}`);
+          }
+          resolve(false);
+          return;
+        }
+
+        res.clearCookie(COOKIE_NAME);
+        resolve(true);
+      }),
+    );
   }
 }
