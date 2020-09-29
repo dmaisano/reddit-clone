@@ -7,3 +7,9 @@ export type MyContext = {
   // req: Request;
   res: Response;
 };
+
+export interface EmailProps {
+  to: string;
+  subject: string;
+  html?: string;
+}

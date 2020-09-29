@@ -1,36 +1,13 @@
+import { EntityManager } from "@mikro-orm/postgresql";
 import argon2 from "argon2";
-import {
-  Arg,
-  Ctx,
-  Field,
-  InputType,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-} from "type-graphql";
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import { COOKIE_NAME, __prod__ } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
-import { EntityManager } from "@mikro-orm/postgresql";
-
-@InputType()
-class UsernamePasswordInput {
-  @Field()
-  username: string;
-
-  @Field()
-  password: string;
-}
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-
-  @Field()
-  message: string;
-}
+import { devConsole } from "../utils/devConsole";
+import { sendEmail } from "../utils/sendEmail";
+import { FieldError, validateRegister } from "../utils/validateRegister";
+import { UserInput } from "./UserInput";
 
 @ObjectType()
 class UserResponse {
@@ -43,6 +20,25 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Mutation(() => Boolean)
+  async forgotPassword(@Arg("email") email: string, @Ctx() { em }: MyContext) {
+    const user = await em.findOne(User, { email });
+    if (!user) {
+      // the email is not in the db
+      return true;
+    }
+
+    const token = "123";
+
+    sendEmail({
+      to: email,
+      subject: "",
+      html: `<a href="http://localhost:3000/change-password/${email}">reset password</a>`,
+    });
+
+    return true;
+  }
+
   @Query(() => User, { nullable: true })
   async me(@Ctx() { em, req }: MyContext): Promise<User | null> {
     // not logged in
@@ -57,29 +53,13 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async register(
-    @Arg("options") options: UsernamePasswordInput,
+    @Arg("options") options: UserInput,
     @Ctx() { em, req }: MyContext,
   ): Promise<UserResponse> {
-    if (options.username.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "username",
-            message: "length must than 2",
-          },
-        ],
-      };
-    }
-
-    if (options.password.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "length must than 2",
-          },
-        ],
-      };
+    // check if user submission is valid
+    const errors = validateRegister(options);
+    if (errors.length) {
+      return { errors };
     }
 
     const hashedPassword = await argon2.hash(options.password);
@@ -89,6 +69,7 @@ export class UserResolver {
         .createQueryBuilder(User)
         .getKnexQuery()
         .insert({
+          email: options.email,
           username: options.username,
           password: hashedPassword,
           created_at: new Date(),
@@ -100,12 +81,10 @@ export class UserResolver {
 
       // await em.persistAndFlush(user);
     } catch (err) {
-      if (!__prod__) {
-        console.log({
-          message: err.message,
-          code: err.code,
-        });
-      }
+      devConsole({
+        message: err.message,
+        code: err.code,
+      });
 
       const errors: FieldError[] = [];
 
@@ -127,25 +106,29 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("options") options: UsernamePasswordInput,
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string,
     @Ctx() { em, req }: MyContext,
   ): Promise<UserResponse> {
-    const user = await em.findOne(User, {
-      username: options.username,
-    });
+    const user = await em.findOne(
+      User,
+      usernameOrEmail.includes("@")
+        ? { email: usernameOrEmail }
+        : { username: usernameOrEmail },
+    );
 
     if (!user) {
       return {
         errors: [
           {
-            field: "username",
-            message: "that username does not exist",
+            field: "usernameOrEmail",
+            message: "that username / email does not exist",
           },
         ],
       };
     }
 
-    const valid = await argon2.verify(user.password, options.password);
+    const valid = await argon2.verify(user.password, password);
     if (!valid) {
       return {
         errors: [
@@ -170,9 +153,7 @@ export class UserResolver {
     return new Promise((resolve) =>
       req.session.destroy((err) => {
         if (err) {
-          if (!__prod__) {
-            console.log(`failed to logout and destroy session, err: ${err}`);
-          }
+          devConsole(`failed to logout and destroy session, err: ${err}`);
           resolve(false);
           return;
         }

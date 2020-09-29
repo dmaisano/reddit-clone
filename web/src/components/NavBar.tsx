@@ -13,7 +13,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   });
   let body: JSX.Element = <></>;
 
-  console.log("data: ", data);
+  console.log("navbar data: ", data);
 
   // data is loading
   if (fetching) {
