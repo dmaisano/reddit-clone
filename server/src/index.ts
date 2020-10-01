@@ -4,7 +4,7 @@ import connectRedis from "connect-redis";
 import cors from "cors";
 import express from "express";
 import session from "express-session";
-import redis from "redis";
+import Redis from "ioredis";
 import { buildSchema } from "type-graphql";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import mikroConfig from "./mikro-orm.config";
@@ -18,7 +18,7 @@ const main = async () => {
   const app = express();
 
   let RedisStore = connectRedis(session);
-  let redisClient = redis.createClient();
+  let redis = new Redis();
 
   app.use(
     cors({
@@ -31,7 +31,7 @@ const main = async () => {
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redisClient,
+        client: redis,
         // disableTTL: true,
         disableTouch: true,
       }),
@@ -56,6 +56,7 @@ const main = async () => {
       em: orm.em,
       req: req as any,
       res,
+      redis,
     }),
   });
 
