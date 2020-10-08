@@ -8,15 +8,14 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX, __prod__ } from "../constants";
+import { v4 } from "uuid";
+import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { devConsole } from "../utils/devConsole";
 import { sendEmail } from "../utils/sendEmail";
 import { FieldError, validateRegister } from "../utils/validateRegister";
 import { UserInput } from "./UserInput";
-import { v4 } from "uuid";
-import { getConnection } from "typeorm";
 
 @ObjectType()
 class UserResponse {
