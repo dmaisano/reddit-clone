@@ -10,13 +10,17 @@
 
 > be sure to run these commands in the `./server` directory
 
-- run `npm install` to install server deps
+- run `npm install`
 
-- run `docker-compose -p "reddit-clone-server" up -d` to install + run the docker-container
+  - installs server deps
+
+- run `docker-compose -p "reddit-clone-server" up -d`
+
+  - initializes the docker container
 
 ## Postgres + pgweb
 
-- Postgresql is provided using the docker-compose file
+- Postgresql is provided using docker
 
 - To interface with psql use a locally install psql-client cli tool or see below to use [pgweb](https://sosedoff.github.io/pgweb/)
 

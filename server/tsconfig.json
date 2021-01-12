@@ -7,11 +7,11 @@
     "outDir": "./dist",
     "moduleResolution": "node",
     "removeComments": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -23,5 +23,5 @@
     "baseUrl": "."
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.tsx", "./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "./scripts/**/*.ts"]
 }
