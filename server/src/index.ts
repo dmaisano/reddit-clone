@@ -1,20 +1,31 @@
-import "reflect-metadata";
-import cors from "cors";
 import { MikroORM } from "@mikro-orm/core";
 import { ApolloServer } from "apollo-server-express";
+import connectRedis from "connect-redis";
+import cors from "cors";
+import dotenv from "dotenv";
 import express from "express";
+import session from "express-session";
+import redis from "redis";
+import "reflect-metadata";
 import { buildSchema } from "type-graphql";
+import { COOKIE_NAME, __prod__ } from "./constants";
 import microConfig from "./mikro-orm.config";
 import { HelloResolver } from "./resolvers/hello";
 import { PostsResolver } from "./resolvers/posts";
 import { UserResolver } from "./resolvers/user";
-import redis from "redis";
-import session from "express-session";
-import connectRedis from "connect-redis";
-import { COOKIE_NAME, __prod__ } from "./constants";
 import { MyContext } from "./types";
+import { emailConfig } from "./utils/emailConfig";
+
+dotenv.config();
 
 const main = async () => {
+  emailConfig();
+
+  // get new email creds once every hour
+  setInterval(() => {
+    emailConfig();
+  }, 1000 * 60 * 60);
+
   const orm = await MikroORM.init(microConfig);
 
   const app = express();
