@@ -1,7 +1,10 @@
 import { Button } from "@chakra-ui/button";
 import { Box } from "@chakra-ui/layout";
+import { Flex, Link } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
+import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import InputField from "../components/InputField";
@@ -12,7 +15,7 @@ import { toErrorMap } from "../utils/toErrorMap";
 
 interface LoginProps {}
 
-const Login: React.FC<LoginProps> = ({}) => {
+const Login: NextPage<LoginProps> = ({}) => {
   const router = useRouter();
   const [, login] = useLoginMutation();
 
@@ -44,8 +47,14 @@ const Login: React.FC<LoginProps> = ({}) => {
                 type="password"
               />
             </Box>
+            <Flex mt={2}>
+              <NextLink href="/forgot-password">
+                <Link ml="auto">forgot password?</Link>
+              </NextLink>
+            </Flex>
             <Button
               mt={4}
+              w="full"
               type="submit"
               isLoading={isSubmitting}
               colorScheme="teal"

@@ -3,8 +3,11 @@ import { withUrqlClient } from "next-urql";
 import Navbar from "../components/Navbar";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { NextPage } from "next";
 
-const Index = () => {
+interface IndexProps {}
+
+const Index: NextPage<IndexProps> = () => {
   const [{ data }] = usePostsQuery();
 
   return (

@@ -1,6 +1,7 @@
 import { Button } from "@chakra-ui/button";
 import { Box } from "@chakra-ui/layout";
 import { Form, Formik } from "formik";
+import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
@@ -12,7 +13,7 @@ import { toErrorMap } from "../utils/toErrorMap";
 
 interface RegisterProps {}
 
-const Register: React.FC<RegisterProps> = ({}) => {
+const Register: NextPage<RegisterProps> = ({}) => {
   const router = useRouter();
   const [, register] = useRegisterMutation();
 
