@@ -1,4 +1,3 @@
-import { MikroORM } from "@mikro-orm/core";
 import { ApolloServer } from "apollo-server-express";
 import connectRedis from "connect-redis";
 import cors from "cors";
@@ -8,8 +7,10 @@ import session from "express-session";
 import Redis from "ioredis";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
+import { createConnection } from "typeorm";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import microConfig from "./mikro-orm.config";
+import { Post } from "./entities/Post";
+import { User } from "./entities/User";
 import { HelloResolver } from "./resolvers/hello";
 import { PostsResolver } from "./resolvers/posts";
 import { UserResolver } from "./resolvers/user";
@@ -19,6 +20,8 @@ import { emailConfig } from "./utils/emailConfig";
 dotenv.config();
 
 const main = async () => {
+  const { DB_NAME, DB_USER, DB_PASS } = process.env;
+
   emailConfig();
 
   // get new email creds once every hour
@@ -26,7 +29,15 @@ const main = async () => {
     emailConfig();
   }, 1000 * 60 * 60);
 
-  const orm = await MikroORM.init(microConfig);
+  const conn = await createConnection({
+    type: "postgres",
+    database: DB_NAME,
+    username: DB_USER,
+    password: DB_PASS,
+    logging: true,
+    synchronize: true,
+    entities: [Post, User],
+  });
 
   const app = express();
 
@@ -64,7 +75,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostsResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }): MyContext => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({
