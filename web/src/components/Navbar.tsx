@@ -48,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   }
 
   return (
-    <Flex bg="tan" p={4} ml="auto">
+    <Flex zIndex={1} position="sticky" top={0} bg="tan" p={4} ml="auto">
       <Box ml="auto">{body}</Box>
     </Flex>
   );

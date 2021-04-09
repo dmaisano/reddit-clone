@@ -1,26 +1,33 @@
-import { Divider } from "@chakra-ui/layout";
+import { Link } from "@chakra-ui/react";
+import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
-import Navbar from "../components/Navbar";
+import React from "react";
+import Layout from "../components/Layout";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import { NextPage } from "next";
+import NextLink from "next/link";
 
 interface IndexProps {}
 
 const Index: NextPage<IndexProps> = () => {
-  const [{ data }] = usePostsQuery();
+  const [{ data, fetching }] = usePostsQuery();
 
   return (
-    <>
-      <Navbar />
-      <div>hello world</div>
+    <Layout>
+      <NextLink href="/create-post">
+        <Link>create post</Link>
+      </NextLink>
       <br />
       {!data ? (
-        <div>loading...</div>
+        fetching ? (
+          <div>loading...</div>
+        ) : (
+          <div>no posts found</div>
+        )
       ) : (
         data.posts.map((p) => <div key={p.id}>{p.title}</div>)
       )}
-    </>
+    </Layout>
   );
 };
 

@@ -36,7 +36,7 @@ export class PostsResolver {
   @Mutation(() => Post)
   @UseMiddleware(isAuth)
   async createPost(
-    @Arg("options") input: PostInput,
+    @Arg("input") input: PostInput,
     @Ctx() { req }: MyContext,
   ): Promise<Post> {
     return Post.create({ ...input, creatorId: req.session.userId }).save();
