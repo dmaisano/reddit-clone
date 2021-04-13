@@ -10,7 +10,11 @@ import NextLink from "next/link";
 interface IndexProps {}
 
 const Index: NextPage<IndexProps> = () => {
-  const [{ data, fetching }] = usePostsQuery();
+  const [{ data, fetching }] = usePostsQuery({
+    variables: {
+      limit: 10,
+    },
+  });
 
   return (
     <Layout>
