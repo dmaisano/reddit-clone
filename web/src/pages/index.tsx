@@ -7,10 +7,11 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
+import { limits } from "argon2";
 import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import Layout from "../components/Layout";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
@@ -18,10 +19,12 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 interface IndexProps {}
 
 const Index: NextPage<IndexProps> = () => {
+  const [variables, setVariables] = useState({
+    limit: 10,
+    cursor: null as null | string,
+  });
   const [{ data, fetching }] = usePostsQuery({
-    variables: {
-      limit: 10,
-    },
+    variables,
   });
 
   return (
@@ -51,7 +54,17 @@ const Index: NextPage<IndexProps> = () => {
       )}
       {data ? (
         <Flex>
-          <Button isLoading={fetching} mx="auto" my={8}>
+          <Button
+            onClick={() => {
+              setVariables({
+                limit: variables.limit,
+                cursor: data.posts[data.posts.length - 1].createdAt,
+              });
+            }}
+            isLoading={fetching}
+            mx="auto"
+            my={8}
+          >
             load more
           </Button>
         </Flex>
