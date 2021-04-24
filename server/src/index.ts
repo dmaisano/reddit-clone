@@ -39,6 +39,9 @@ const main = async () => {
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User],
+    cli: {
+      migrationsDir: path.join(__dirname, "./migrations"),
+    },
   });
   await conn.runMigrations();
 
