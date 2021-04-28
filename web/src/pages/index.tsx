@@ -19,7 +19,7 @@ interface IndexProps {}
 
 const Index: NextPage<IndexProps> = () => {
   const [variables, setVariables] = useState({
-    limit: 33,
+    limit: 15,
     cursor: null as null | string,
   });
   const [{ data, fetching, ...other }] = usePostsQuery({
