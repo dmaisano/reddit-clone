@@ -6,7 +6,10 @@ import {
   Link,
   Stack,
   Text,
+  IconButton,
+  Icon,
 } from "@chakra-ui/react";
+import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
@@ -14,6 +17,7 @@ import React, { useState } from "react";
 import Layout from "../components/Layout";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import Updootsection from "../components/UpdootSection";
 
 interface IndexProps {}
 
@@ -44,14 +48,19 @@ const Index: NextPage<IndexProps> = () => {
       ) : (
         <Stack pt={8}>
           {data.posts.posts.map((p) => (
-            <Box key={p.id} p={5} shadow="md" borderWidth="1px">
-              <Heading fontSize="xl">{p.title}</Heading>{" "}
-              <Text>
-                posted by{" "}
-                <span style={{ fontWeight: "bold" }}>{p.creator.username}</span>
-              </Text>
-              <Text mt={4}>{p.textSnippet}</Text>
-            </Box>
+            <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+              <Updootsection post={p} />
+              <Box>
+                <Heading fontSize="xl">{p.title}</Heading>{" "}
+                <Text>
+                  posted by{" "}
+                  <span style={{ fontWeight: "bold" }}>
+                    {p.creator.username}
+                  </span>
+                </Text>
+                <Text mt={4}>{p.textSnippet}</Text>
+              </Box>
+            </Flex>
           ))}
         </Stack>
       )}
