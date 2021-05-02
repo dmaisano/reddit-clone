@@ -1,23 +1,12 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Link,
-  Stack,
-  Text,
-  IconButton,
-  Icon,
-} from "@chakra-ui/react";
-import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { Box, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
-import NextLink from "next/link";
 import React, { useState } from "react";
 import Layout from "../components/Layout";
+import { NextChakraLink } from "../components/NextChakraLink";
+import Updootsection from "../components/UpdootSection";
 import { usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import Updootsection from "../components/UpdootSection";
 
 interface IndexProps {}
 
@@ -32,12 +21,6 @@ const Index: NextPage<IndexProps> = () => {
 
   return (
     <Layout>
-      <Flex align="baseline">
-        <Heading>LiReddit</Heading>
-        <NextLink href="/create-post">
-          <Link ml="auto">create post</Link>
-        </NextLink>
-      </Flex>
       <br />
       {!data ? (
         fetching ? (
@@ -51,7 +34,9 @@ const Index: NextPage<IndexProps> = () => {
             <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
               <Updootsection post={p} />
               <Box>
-                <Heading fontSize="xl">{p.title}</Heading>{" "}
+                <NextChakraLink href="/post[id]" as={`/post/${p.id}`}>
+                  <Heading fontSize="xl">{p.title}</Heading>
+                </NextChakraLink>{" "}
                 <Text>
                   posted by{" "}
                   <span style={{ fontWeight: "bold" }}>
