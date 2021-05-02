@@ -111,10 +111,16 @@ export class PostsResolver {
     const realLimit = Math.min(200, limit);
     const realLimitPlusOne = realLimit + 1;
 
-    const queryParams: any[] = [realLimitPlusOne, req.session.userId];
+    const queryParams: any[] = [realLimitPlusOne];
 
+    if (req.session.userId) {
+      queryParams.push(req.session.userId);
+    }
+
+    let cursorIdx = 3;
     if (cursor) {
       queryParams.push(new Date(parseInt(cursor)));
+      cursorIdx = queryParams.length;
     }
 
     const posts = await getConnection().query(
@@ -134,7 +140,7 @@ export class PostsResolver {
       }
       from post p
       inner join public.user u on u.id = p."creatorId"
-      ${cursor ? `where p."createdAt" < $3` : ``}
+      ${cursor ? `where p."createdAt" < $${cursorIdx}` : ``}
       order by p."createdAt" DESC
       limit $1
       `,
