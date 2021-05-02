@@ -17,6 +17,9 @@ const Updootsection: React.FC<UpdootsectionProps> = ({ post }) => {
     <Flex direction="column" justifyContent="center" alignItems="center" mr={4}>
       <IconButton
         onClick={async () => {
+          if (post.voteStatus === 1) {
+            return;
+          }
           setLoadingState(`updoot-loading`);
           await vote({
             postId: post.id,
@@ -24,15 +27,19 @@ const Updootsection: React.FC<UpdootsectionProps> = ({ post }) => {
           });
           setLoadingState(`not-loading`);
         }}
+        color={post.voteStatus === 1 ? `lime` : undefined}
         isLoading={loadingState === `updoot-loading`}
         aria-label="upvote"
         variant="unstyled"
         size="sm"
-        icon={<ChevronUpIcon w={6} h={6} />}
+        icon={<ChevronUpIcon w={8} h={8} />}
       />
       <Box>{post.points}</Box>
       <IconButton
         onClick={async () => {
+          if (post.voteStatus === -1) {
+            return;
+          }
           setLoadingState(`downdoot-loading`);
           await vote({
             postId: post.id,
@@ -40,11 +47,12 @@ const Updootsection: React.FC<UpdootsectionProps> = ({ post }) => {
           });
           setLoadingState(`not-loading`);
         }}
+        color={post.voteStatus === -1 ? `tomato` : undefined}
         isLoading={loadingState === `downdoot-loading`}
         aria-label="downvote"
         variant="unstyled"
         size="sm"
-        icon={<ChevronDownIcon w={6} h={6} />}
+        icon={<ChevronDownIcon w={8} h={8} />}
       />
     </Flex>
   );
