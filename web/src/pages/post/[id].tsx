@@ -3,28 +3,21 @@ import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
+import EditDeletePostButtons from "../../components/EditDeletePostButtons";
 import Layout from "../../components/Layout";
 import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
+import { useGetPostFromUrl } from "../../utils/useGetPostFromUrl";
 
 interface PostProps {}
 
 const Post: NextPage<PostProps> = ({}) => {
-  const router = useRouter();
-  const intId =
-    typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
-  const [{ data, error, fetching }] = usePostQuery({
-    variables: {
-      id: intId,
-    },
-  });
-
-  console.log({ error });
+  const [{ data, error, fetching }] = useGetPostFromUrl();
 
   if (fetching) {
     return (
       <Layout>
-        <div>loading...</div>
+        <Box>loading...</Box>
       </Layout>
     );
   }
@@ -48,7 +41,13 @@ const Post: NextPage<PostProps> = ({}) => {
   return (
     <Layout>
       <Heading mb={4}>{data.post.title}</Heading>
-      <Text>{data.post.text}</Text>
+      <Box mb={4}>
+        <Text>{data.post.text}</Text>
+      </Box>
+      <EditDeletePostButtons
+        id={data.post.id}
+        creatorId={data.post.creator.id}
+      />
     </Layout>
   );
 };

@@ -1,3 +1,4 @@
+import { resourceUsage } from "process";
 import {
   Arg,
   Ctx,
@@ -15,6 +16,7 @@ import {
 import { getConnection } from "typeorm";
 import { Post } from "../entities/Post";
 import { Updoot } from "../entities/Updoot";
+import { User } from "../entities/User";
 import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "../types";
 
@@ -41,6 +43,11 @@ export class PostsResolver {
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post) {
     return root.text.length >= 50 ? `${root.text.slice(0, 50)}...` : root.text;
+  }
+
+  @FieldResolver(() => User)
+  creator(@Root() post: Post) {
+    return User.findOne(post.creatorId);
   }
 
   @Mutation(() => Boolean)
@@ -126,20 +133,12 @@ export class PostsResolver {
     const posts = await getConnection().query(
       `
       select p.*,
-      json_build_object(
-        'id', u.id,
-        'username', u.username,
-        'email', u.email,
-        'createdAt', u."createdAt",
-        'updatedAt', u."updatedAt"
-        ) creator,
       ${
         req.session.userId
           ? `(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"`
           : `null as "voteStatus"`
       }
       from post p
-      inner join public.user u on u.id = p."creatorId"
       ${cursor ? `where p."createdAt" < $${cursorIdx}` : ``}
       order by p."createdAt" DESC
       limit $1
@@ -155,7 +154,7 @@ export class PostsResolver {
 
   @Query(() => Post, { nullable: true })
   post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
-    return Post.findOne(id, { relations: ["creator"] });
+    return Post.findOne(id);
   }
 
   @Mutation(() => Post)
@@ -168,20 +167,27 @@ export class PostsResolver {
   }
 
   @Mutation(() => Post)
+  @UseMiddleware(isAuth)
   async updatePost(
-    @Arg("id") id: number,
-    @Arg("title", () => String, { nullable: true }) title: string,
+    @Arg("id", () => Int) id: number,
+    @Arg("title") title: string,
+    @Arg("text") text: string,
+    @Ctx() { req }: MyContext,
   ): Promise<Post | null> {
-    const post = await Post.findOne(id);
-    if (!post) {
-      return null;
-    }
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(Post)
+      .set({ title, text })
+      .where(`id = :id and "creatorId" = :creatorId`, {
+        id,
+        creatorId: req.session.userId,
+      })
+      .returning(`*`)
+      .execute();
 
-    if (typeof title !== "undefined") {
-      await Post.update({ id }, { title });
-    }
+    console.log(`==== result: ${JSON.stringify(result)}`);
 
-    return post;
+    return result.raw[0];
   }
 
   @Mutation(() => Boolean)
