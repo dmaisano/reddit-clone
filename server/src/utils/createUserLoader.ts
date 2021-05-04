@@ -14,5 +14,3 @@ export const createUserLoader = () =>
 
     return userIds.map((userId) => userIdToUser[userId]);
   });
-
-export type CreateUserLoaderType = typeof createUserLoader;

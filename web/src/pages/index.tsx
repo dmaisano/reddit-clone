@@ -17,7 +17,7 @@ const Index: NextPage<IndexProps> = () => {
     cursor: null as null | string,
   });
 
-  const [{ data, fetching, ...other }] = usePostsQuery({
+  const [{ data, error, fetching, ...other }] = usePostsQuery({
     variables,
   });
 
@@ -28,7 +28,10 @@ const Index: NextPage<IndexProps> = () => {
         fetching ? (
           <div>loading...</div>
         ) : (
-          <div>no posts found</div>
+          <div>
+            <div>no posts found</div>
+            <div>{error?.message}</div>
+          </div>
         )
       ) : (
         <Stack pt={8}>

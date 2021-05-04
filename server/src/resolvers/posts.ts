@@ -1,4 +1,3 @@
-import { resourceUsage } from "process";
 import {
   Arg,
   Ctx,
@@ -46,8 +45,24 @@ export class PostsResolver {
   }
 
   @FieldResolver(() => User)
-  creator(@Root() post: Post) {
-    return User.findOne(post.creatorId);
+  creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+    return userLoader.load(post.creatorId);
+  }
+
+  @FieldResolver(() => Int, { nullable: true })
+  async voteStatus(
+    @Root() { id: postId }: Post,
+    @Ctx() { updootLoader, req }: MyContext,
+  ) {
+    const { userId } = req.session;
+
+    if (!userId) {
+      return null;
+    }
+
+    const updoot = await updootLoader.load({ postId, userId });
+
+    return updoot ? updoot.value : null;
   }
 
   @Mutation(() => Boolean)
@@ -113,33 +128,21 @@ export class PostsResolver {
   async posts(
     @Arg("limit", () => Int) limit: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
-    @Ctx() { req }: MyContext,
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(200, limit);
     const realLimitPlusOne = realLimit + 1;
 
     const queryParams: any[] = [realLimitPlusOne];
 
-    if (req.session.userId) {
-      queryParams.push(req.session.userId);
-    }
-
-    let cursorIdx = 3;
     if (cursor) {
       queryParams.push(new Date(parseInt(cursor)));
-      cursorIdx = queryParams.length;
     }
 
     const posts = await getConnection().query(
       `
-      select p.*,
-      ${
-        req.session.userId
-          ? `(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"`
-          : `null as "voteStatus"`
-      }
+      select p.*
       from post p
-      ${cursor ? `where p."createdAt" < $${cursorIdx}` : ``}
+      ${cursor ? `where p."createdAt" < $2` : ""}
       order by p."createdAt" DESC
       limit $1
       `,
@@ -184,8 +187,6 @@ export class PostsResolver {
       })
       .returning(`*`)
       .execute();
-
-    console.log(`==== result: ${JSON.stringify(result)}`);
 
     return result.raw[0];
   }
