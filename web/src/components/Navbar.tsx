@@ -1,5 +1,6 @@
 import { Box, Button, Flex, Heading, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
@@ -8,6 +9,7 @@ import { NextChakraLink } from "./NextChakraLink";
 interface NavbarProps {}
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
+  const router = useRouter();
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
@@ -39,8 +41,9 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         </Button>
         <Box mr={2}>{data.me.username}</Box>
         <Button
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
+            router.reload();
           }}
           isLoading={logoutFetching}
           variant="link"
@@ -61,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       ml="auto"
       align="center"
     >
-      <Flex flex={1} maxW={800} mx="auto">
+      <Flex flex={1} maxW={800} mx="auto" align="center">
         <NextChakraLink href="/">
           <Heading>LiReddit</Heading>
         </NextChakraLink>
