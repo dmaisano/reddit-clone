@@ -1,7 +1,7 @@
 import { ApolloServer } from "apollo-server-express";
 import connectRedis from "connect-redis";
 import cors from "cors";
-import dotenv from "dotenv";
+import "dotenv-safe/config";
 import express from "express";
 import session from "express-session";
 import Redis from "ioredis";
@@ -19,25 +19,19 @@ import { UserResolver } from "./resolvers/user";
 import { MyContext } from "./types";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
 import { createUserLoader } from "./utils/createUserLoader";
-import { emailConfig } from "./utils/emailConfig";
-
-dotenv.config();
+// import { emailConfig } from "./utils/emailConfig";
 
 const main = async () => {
-  const { DB_NAME, DB_USER, DB_PASS } = process.env;
-
-  emailConfig();
+  // emailConfig();
 
   // get new email creds once every hour
-  setInterval(() => {
-    emailConfig();
-  }, 1000 * 60 * 60);
+  // setInterval(() => {
+  //   emailConfig();
+  // }, 1000 * 60 * 60);
 
   const conn = await createConnection({
     type: "postgres",
-    database: DB_NAME,
-    username: DB_USER,
-    password: DB_PASS,
+    url: process.env.DATABASE_URL,
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
@@ -51,11 +45,11 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
 
   app.use(
     cors({
-      origin: ["http://localhost:3000", "http://localhost:4200"],
+      origin: [process.env.CORS_ORIGIN],
       credentials: true,
     }),
   );
@@ -74,7 +68,7 @@ const main = async () => {
         secure: __prod__, // cookie only works in https
       },
       saveUninitialized: false,
-      secret: "F*J7n$8A!Pg2eJXY",
+      secret: process.env.SESSION_SECRET,
       resave: false,
     }),
   );
@@ -98,8 +92,9 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(4000, () => {
-    console.log(`server started on http://localhost:4000/graphql`);
+  const port = parseInt(process.env.PORT);
+  app.listen(port, () => {
+    console.log(`server started on http://localhost:${port}/graphql`);
   });
 };
 

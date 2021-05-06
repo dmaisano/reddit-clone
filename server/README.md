@@ -41,3 +41,9 @@
   - SSL Mode: disable
 
 ![screenshot](./pgweb.png)
+
+### Env Variables
+
+- https://github.com/benawad/gen-env-types
+
+`npx gen-env-types path/to/.env`
