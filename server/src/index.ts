@@ -22,23 +22,13 @@ import { createUserLoader } from "./utils/createUserLoader";
 // import { emailConfig } from "./utils/emailConfig";
 
 const main = async () => {
-  // emailConfig();
-
-  // get new email creds once every hour
-  // setInterval(() => {
-  //   emailConfig();
-  // }, 1000 * 60 * 60);
-
   const conn = await createConnection({
     type: "postgres",
     url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
+    // synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Updoot],
-    cli: {
-      migrationsDir: path.join(__dirname, "./migrations"),
-    },
   });
   await conn.runMigrations();
 
@@ -46,6 +36,8 @@ const main = async () => {
 
   const RedisStore = connectRedis(session);
   const redis = new Redis(process.env.REDIS_URL);
+
+  app.set("proxy", 1);
 
   app.use(
     cors({
@@ -90,6 +82,12 @@ const main = async () => {
   apolloServer.applyMiddleware({
     app,
     cors: false,
+  });
+
+  app.get(`/`, (_, res) => {
+    res.send(
+      `<h1 style="text-align: center; padding-top: 2rem;">reddit clone graphql api</h1>`,
+    );
   });
 
   const port = parseInt(process.env.PORT);

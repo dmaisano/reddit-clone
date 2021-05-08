@@ -83,7 +83,7 @@ export const createUrqlClient: NextUrqlClientConfig = (ssrExchange, ctx) => {
   }
 
   return {
-    url: "http://localhost:4000/graphql",
+    url: "http://localhost:8080/graphql",
     fetchOptions: {
       credentials: "include" as const,
       headers: cookie
