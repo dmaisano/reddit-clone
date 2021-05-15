@@ -2,13 +2,13 @@
   "name": "with-chakra-ui-typescript",
   "version": "1.0.0",
   "scripts": {
-
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@apollo/client": "^3.3.18",
     "@chakra-ui/icons": "^1.0.5",
     "@chakra-ui/react": "^1.3.3",
     "@chakra-ui/theme-tools": "1.0.4",

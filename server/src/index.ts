@@ -30,18 +30,24 @@ const main = async () => {
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Updoot],
   });
-  await conn.runMigrations();
+  // await conn.runMigrations();
 
   const app = express();
 
   const RedisStore = connectRedis(session);
   const redis = new Redis(process.env.REDIS_URL);
 
-  app.set("proxy", 1);
+  app.set("trust proxy", 1);
+
+  const CORS_ORIGIN: RegExp[] = [];
+  process.env.CORS_ORIGIN.split(",").map((url) => {
+    CORS_ORIGIN.push(new RegExp(url.trim()));
+  });
+  console.log(`CORS_ORIGIN `, CORS_ORIGIN);
 
   app.use(
     cors({
-      origin: [process.env.CORS_ORIGIN],
+      origin: CORS_ORIGIN,
       credentials: true,
     }),
   );
@@ -58,6 +64,7 @@ const main = async () => {
         httpOnly: true,
         sameSite: "lax", // csrf
         secure: __prod__, // cookie only works in https
+        domain: __prod__ ? process.env.DOMAIN : undefined,
       },
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET,
