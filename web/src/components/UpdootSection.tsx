@@ -1,18 +1,63 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { Box, Flex, IconButton } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { PostSnippetFragment, useVoteMutation } from "../generated/graphql";
+import {
+  PostSnippetFragment,
+  useVoteMutation,
+  VoteMutation,
+} from "../generated/graphql";
+import gql from "graphql-tag";
+import { ApolloCache } from "@apollo/client";
 
-interface UpdootsectionProps {
+interface UpdootSectionProps {
   post: PostSnippetFragment;
 }
 
-const Updootsection: React.FC<UpdootsectionProps> = ({ post }) => {
-  const [loadingState, setLoadingState] = useState<
-    "updoot-loading" | "downdoot-loading" | "not-loading"
-  >(`not-loading`);
-  const [, vote] = useVoteMutation();
+const updateAfterVote = (
+  value: number,
+  postId: number,
+  cache: ApolloCache<VoteMutation>,
+) => {
+  const data = cache.readFragment<{
+    id: number;
+    points: number;
+    voteStatus: number | null;
+  }>({
+    id: "Post:" + postId,
+    fragment: gql`
+      fragment _ on Post {
+        id
+        points
+        voteStatus
+      }
+    `,
+  });
 
+  if (data) {
+    if (data.voteStatus === value) {
+      return;
+    }
+    const newPoints =
+      (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
+    cache.writeFragment({
+      id: "Post:" + postId,
+      fragment: gql`
+        fragment __ on Post {
+          points
+          voteStatus
+        }
+      `,
+      data: { points: newPoints, voteStatus: value },
+    });
+  }
+};
+
+const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
+  const [loadingState, setLoadingState] =
+    useState<"updoot-loading" | "downdoot-loading" | "not-loading">(
+      "not-loading",
+    );
+  const [vote] = useVoteMutation();
   return (
     <Flex direction="column" justifyContent="center" alignItems="center" mr={4}>
       <IconButton
@@ -20,36 +65,42 @@ const Updootsection: React.FC<UpdootsectionProps> = ({ post }) => {
           if (post.voteStatus === 1) {
             return;
           }
-          setLoadingState(`updoot-loading`);
+          setLoadingState("updoot-loading");
           await vote({
-            postId: post.id,
-            value: 1,
+            variables: {
+              postId: post.id,
+              value: 1,
+            },
+            update: (cache) => updateAfterVote(1, post.id, cache),
           });
-          setLoadingState(`not-loading`);
+          setLoadingState("not-loading");
         }}
         color={post.voteStatus === 1 ? `lime` : undefined}
-        isLoading={loadingState === `updoot-loading`}
-        aria-label="upvote"
+        isLoading={loadingState === "updoot-loading"}
+        aria-label="updoot post"
         variant="unstyled"
         size="sm"
         icon={<ChevronUpIcon w={8} h={8} />}
       />
-      <Box>{post.points}</Box>
+      {post.points}
       <IconButton
         onClick={async () => {
           if (post.voteStatus === -1) {
             return;
           }
-          setLoadingState(`downdoot-loading`);
+          setLoadingState("downdoot-loading");
           await vote({
-            postId: post.id,
-            value: -1,
+            variables: {
+              postId: post.id,
+              value: -1,
+            },
+            update: (cache) => updateAfterVote(-1, post.id, cache),
           });
-          setLoadingState(`not-loading`);
+          setLoadingState("not-loading");
         }}
         color={post.voteStatus === -1 ? `tomato` : undefined}
-        isLoading={loadingState === `downdoot-loading`}
-        aria-label="downvote"
+        isLoading={loadingState === "downdoot-loading"}
+        aria-label="downdoot post"
         variant="unstyled"
         size="sm"
         icon={<ChevronDownIcon w={8} h={8} />}
@@ -58,4 +109,4 @@ const Updootsection: React.FC<UpdootsectionProps> = ({ post }) => {
   );
 };
 
-export default Updootsection;
+export default UpdootSection;

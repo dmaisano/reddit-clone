@@ -1,31 +1,34 @@
 import { Box, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import { NextPage } from "next";
-import { withUrqlClient } from "next-urql";
-import React, { useState } from "react";
+import React from "react";
 import EditDeletePostButtons from "../components/EditDeletePostButtons";
 import Layout from "../components/Layout";
 import { NextChakraLink } from "../components/NextChakraLink";
-import Updootsection from "../components/UpdootSection";
-import { useMeQuery, usePostsQuery } from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import UpdootSection from "../components/UpdootSection";
+import { usePostsQuery } from "../generated/graphql";
+import withApollo from "../utils/withApollo";
 
 interface IndexProps {}
 
 const Index: NextPage<IndexProps> = () => {
-  const [variables, setVariables] = useState({
-    limit: 15,
-    cursor: null as null | string,
-  });
+  // const [variables, setVariables] = useState({
+  //   limit: 15,
+  //   cursor: null as null | string,
+  // });
 
-  const [{ data, error, fetching, ...other }] = usePostsQuery({
-    variables,
+  const { data, error, loading, fetchMore, variables } = usePostsQuery({
+    variables: {
+      limit: 15,
+      cursor: null,
+    },
+    notifyOnNetworkStatusChange: true,
   });
 
   return (
     <Layout>
       <br />
       {!data ? (
-        fetching ? (
+        loading ? (
           <div>loading...</div>
         ) : (
           <div>
@@ -38,7 +41,7 @@ const Index: NextPage<IndexProps> = () => {
           {data.posts.posts.map((p) =>
             !p ? null : (
               <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                <Updootsection post={p} />
+                <UpdootSection post={p} />
                 <Box flex={1}>
                   <NextChakraLink href="/post[id]" as={`/post/${p.id}`}>
                     <Heading fontSize="xl">{p.title}</Heading>
@@ -65,12 +68,35 @@ const Index: NextPage<IndexProps> = () => {
         <Flex>
           <Button
             onClick={() => {
-              setVariables({
-                limit: variables.limit,
-                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              fetchMore({
+                variables: {
+                  limit: variables?.limit,
+                  cursor:
+                    data.posts.posts[data.posts.posts.length - 1].createdAt,
+                },
+                // updateQuery: (
+                //   previousValues,
+                //   { fetchMoreResult },
+                // ): PostsQuery => {
+                //   if (fetchMoreResult) {
+                //     return previousValues as PostsQuery;
+                //   }
+
+                //   return {
+                //     __typename: `Query`,
+                //     posts: {
+                //       __typename: `PaginatedPosts`,
+                //       hasMore: (fetchMoreResult as PostsQuery).posts.hasMore,
+                //       posts: [
+                //         ...(previousValues as PostsQuery).posts.posts,
+                //         ...(fetchMoreResult as PostsQuery).posts.posts,
+                //       ],
+                //     },
+                //   };
+                // },
               });
             }}
-            isLoading={fetching}
+            isLoading={loading}
             mx="auto"
             my={8}
           >
@@ -84,4 +110,5 @@ const Index: NextPage<IndexProps> = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+// export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+export default withApollo({ ssr: true })(Index);

@@ -1,20 +1,17 @@
 import { Box, Heading, Text } from "@chakra-ui/react";
 import { NextPage } from "next";
-import { withUrqlClient } from "next-urql";
-import { useRouter } from "next/router";
 import React from "react";
 import EditDeletePostButtons from "../../components/EditDeletePostButtons";
 import Layout from "../../components/Layout";
-import { usePostQuery } from "../../generated/graphql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
 import { useGetPostFromUrl } from "../../utils/useGetPostFromUrl";
+import withApollo from "../../utils/withApollo";
 
 interface PostProps {}
 
 const Post: NextPage<PostProps> = ({}) => {
-  const [{ data, error, fetching }] = useGetPostFromUrl();
+  const { data, error, loading } = useGetPostFromUrl();
 
-  if (fetching) {
+  if (loading) {
     return (
       <Layout>
         <Box>loading...</Box>
@@ -52,4 +49,5 @@ const Post: NextPage<PostProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Post);
+// export default withUrqlClient(createUrqlClient, { ssr: true })(Post);
+export default withApollo({ ssr: true })(Post);
