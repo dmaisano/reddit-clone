@@ -11,7 +11,12 @@ import {
   Root,
 } from "type-graphql";
 import { v4 } from "uuid";
-import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
+import {
+  BASE_URL,
+  COOKIE_NAME,
+  FORGET_PASSWORD_PREFIX,
+  REGISTER_CONFIRMATION_PREFIX,
+} from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { sendEmail } from "../utils/sendEmail";
@@ -120,7 +125,7 @@ export class UserResolver {
       1000 * 60 * 60 * 24 * 3,
     );
     const body = `<a href="http://localhost:3000/change-password/${token}">reset password</a>`;
-    await sendEmail(email, body);
+    // await sendEmail(email, body);
 
     return true;
   }
@@ -135,42 +140,84 @@ export class UserResolver {
     return User.findOne(req.session.userId);
   }
 
-  @Mutation(() => UserResponse)
+  @Mutation(() => [FieldError])
   async register(
-    @Arg("options") options: UsernamePasswordInput,
-    @Ctx() { req }: MyContext,
-  ): Promise<UserResponse> {
-    const errors = validateRegister(options);
+    @Arg("options") { email, username, password }: UsernamePasswordInput,
+    @Ctx() { redis }: MyContext,
+  ): Promise<FieldError[]> {
+    const errors = validateRegister({ email, username, password });
     if (errors) {
-      return { errors };
+      console.log({
+        REGISTER_ERRORS: errors,
+      });
+      return errors;
     }
 
-    const hashedPassword = await argon2.hash(options.password);
+    const token = `${email}:${v4()}`;
+    const link = `${BASE_URL}/confirm-registration/${token}`;
+
+    console.log({
+      token,
+      link,
+    });
+
+    const result = await sendEmail({
+      to: email,
+      subject: `dmaisano reddit clone app signup`,
+      templateOption: `register-confirmation`,
+      data: {
+        link,
+      },
+    });
+
+    if (!result) {
+      throw new Error(`Failed to register user with email: ${email}`);
+    }
+
+    const hashedPassword = await argon2.hash(password);
+
+    // not checking for duplicate emails in cache
+    // if a user registers more than once, we will only create an account associated with whichever token was provided from the email / frontend
+    await redis.set(
+      REGISTER_CONFIRMATION_PREFIX + token,
+      JSON.stringify({ email, username, password: hashedPassword }),
+      `ex`,
+      1000 * 60 * 60 * 4, // 4hr expiration
+    );
+
+    return [];
+  }
+
+  @Query(() => UserResponse)
+  async confirmRegistration(
+    @Arg("token") token: string,
+    @Ctx() { req, redis }: MyContext,
+  ): Promise<UserResponse> {
     let user: User | null = null;
+
     try {
+      const cachedUser = await redis.get(REGISTER_CONFIRMATION_PREFIX + token);
+
+      if (!cachedUser) {
+        throw new Error(`Unable to confirm user with token: ${token}`);
+      }
+      user = JSON.parse(cachedUser);
+
+      console.log(user);
+      console.log(`user instanceof User: ${user instanceof User}`);
+
       user = await User.create({
-        username: options.username,
-        email: options.email,
-        password: hashedPassword,
+        ...user, // redis contains the already hashed user password
       }).save();
-      // query builder
-      // const result = await getConnection()
-      //   .createQueryBuilder()
-      //   .insert()
-      //   .into(User)
-      //   .values({
-      //   username: options.username,
-      //   email: options.email,
-      //   password: hashedPassword,
-      // })
-      //   .returning(`*`)
-      //   .execute();
-      // user = result.raw[0] as User;
+
+      // store user id session
+      // this will set a cookie on the user
+      // keep them logged in
+      req.session.userId = user?.id;
+
+      return { user };
     } catch (err) {
-      console.log(`err: `);
-      //|| err.detail.includes("already exists")) {
-      // duplicate username error
-      if (err.code === "23505") {
+      if (err?.code === "23505") {
         return {
           errors: [
             {
@@ -180,14 +227,16 @@ export class UserResolver {
           ],
         };
       }
+
+      return {
+        errors: [
+          {
+            field: "unknown",
+            message: err,
+          },
+        ],
+      };
     }
-
-    // store user id session
-    // this will set a cookie on the user
-    // keep them logged in
-    req.session.userId = user?.id;
-
-    return { user };
   }
 
   @Mutation(() => UserResponse)

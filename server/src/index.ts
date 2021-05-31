@@ -8,7 +8,7 @@ import Redis from "ioredis";
 import path from "path";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
-import { createConnection } from "typeorm";
+import { ConnectionNotFoundError, createConnection } from "typeorm";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import { Post } from "./entities/Post";
 import { Updoot } from "./entities/Updoot";
@@ -31,6 +31,8 @@ const main = async () => {
     entities: [Post, User, Updoot],
   });
   await conn.runMigrations();
+
+  // await User.delete({});
 
   const app = express();
 

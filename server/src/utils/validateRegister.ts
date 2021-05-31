@@ -21,7 +21,7 @@ export const validateRegister = (options: UsernamePasswordInput) => {
     return [
       {
         field: `username`,
-        message: `cannot include an "`,
+        message: `cannot include an @"`,
       },
     ];
   }
