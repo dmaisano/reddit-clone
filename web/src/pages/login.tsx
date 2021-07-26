@@ -50,6 +50,7 @@ const Login: NextPage<LoginProps> = ({}) => {
         {({ isSubmitting }) => (
           <Form>
             <InputField
+              autoComplete="username"
               name="usernameOrEmail"
               placeholder="username or email"
               label="Username or Email"

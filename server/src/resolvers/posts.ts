@@ -13,6 +13,7 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { getConnection } from "typeorm";
+import mockPosts from "../../../library/constants/mock_posts";
 import { Post } from "../entities/Post";
 import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
@@ -165,7 +166,24 @@ export class PostsResolver {
   async createPost(
     @Arg("input") input: PostInput,
     @Ctx() { req }: MyContext,
-  ): Promise<Post> {
+  ): Promise<Post | Error> {
+    const { text, title } = input;
+
+    let isValid = false;
+    for (const post of mockPosts) {
+      if (title === post.title && text === post.text) {
+        isValid = true;
+        break;
+      }
+    }
+
+    if (!isValid) {
+      console.log(`THROWING ERROR`);
+      throw new Error(
+        `Invalid post input. Click "generate input" then submit post.`,
+      );
+    }
+
     return Post.create({ ...input, creatorId: req.session.userId }).save();
   }
 

@@ -67,8 +67,15 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       align="center"
     >
       <Flex flex={1} maxW={800} mx="auto" align="center">
-        <NextChakraLink href="/">
-          <Heading>LiReddit</Heading>
+        <NextChakraLink
+          href="/"
+          sx={{
+            ":hover": {
+              textDecoration: `none`,
+            },
+          }}
+        >
+          <Heading>📝</Heading>
         </NextChakraLink>
         <Box ml="auto">{body}</Box>
       </Flex>
