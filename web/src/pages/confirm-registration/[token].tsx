@@ -6,6 +6,8 @@ import { Button } from "@chakra-ui/button";
 import { useConfirmRegistrationQuery } from "../../generated/graphql";
 import withApollo from "../../utils/withApollo";
 import BadRequest from "../../components/BadRequest";
+import Head from "next/head";
+import { SITE_TITLE } from "../../constants";
 
 interface ConfirmRegistrationProps {}
 
@@ -25,6 +27,14 @@ const ConfirmRegistration: NextPage<ConfirmRegistrationProps> = ({}) => {
 
   return (
     <>
+      <Head>
+        <title>{`Confirm Registration | ${SITE_TITLE}`}</title>
+        <meta
+          property="og:title"
+          content={`Confirm Registration | ${SITE_TITLE}`}
+          key="title"
+        />
+      </Head>
       <Text>token: {token}</Text>
       {/* <Text>{JSON.stringify({ data, error })}</Text> */}
       if ()
