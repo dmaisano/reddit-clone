@@ -1,5 +1,5 @@
-query ConfirmRegistration($token: String!) {
+mutation ConfirmRegistration($token: String!) {
   confirmRegistration(token: $token) {
-    ...RegularUserResponse
+    ...RegularUser
   }
 }

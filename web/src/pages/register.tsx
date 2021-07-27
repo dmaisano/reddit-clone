@@ -1,13 +1,14 @@
 import { Button } from "@chakra-ui/button";
-import { Box, Center, Text } from "@chakra-ui/layout";
+import { Box, Center, Link, Text } from "@chakra-ui/layout";
 import { Form, Formik } from "formik";
 import { NextPage } from "next";
 import Head from "next/head";
+import NextLink from "next/link";
 import React from "react";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
 import { SITE_TITLE } from "../constants";
-import { useRegisterMutation } from "../generated/graphql";
+import { MeDocument, MeQuery, useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import withApollo from "../utils/withApollo";
 
@@ -31,15 +32,6 @@ const Register: NextPage<RegisterProps> = ({}) => {
         onSubmit={async (values, actions) => {
           const response = await register({
             variables: { options: values },
-            // update: (cache, { data }) => {
-            // cache.writeQuery<MeQuery>({
-            //   query: MeDocument,
-            //   data: {
-            //     __typename: `Query`,
-            //     me: data?.register.user,
-            //   },
-            // });
-            // },
           });
 
           const errors = response.data?.register;
@@ -48,10 +40,6 @@ const Register: NextPage<RegisterProps> = ({}) => {
           } else {
             actions.setStatus({ success: true });
           }
-
-          // else if (response.data?.register.user) {
-          //   actions.setStatus({ success: true });
-          // }
         }}
       >
         {({ isSubmitting, status }) =>
@@ -98,6 +86,11 @@ const Register: NextPage<RegisterProps> = ({}) => {
                 <Text fontSize="2xl">
                   Please check your email to confirm account registration 📧
                 </Text>
+                <Button mx="4" mt="6" colorScheme="teal" w="fit-content">
+                  <Link as={NextLink} href="/">
+                    home 🏠
+                  </Link>
+                </Button>
               </Box>
             </Center>
           )

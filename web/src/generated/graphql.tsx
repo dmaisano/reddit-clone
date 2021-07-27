@@ -29,6 +29,7 @@ export type Mutation = {
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   register: Array<FieldError>;
+  confirmRegistration?: Maybe<User>;
   login: UserResponse;
   logout: Scalars['Boolean'];
 };
@@ -73,6 +74,11 @@ export type MutationRegisterArgs = {
 };
 
 
+export type MutationConfirmRegistrationArgs = {
+  token: Scalars['String'];
+};
+
+
 export type MutationLoginArgs = {
   password: Scalars['String'];
   usernameOrEmail: Scalars['String'];
@@ -109,7 +115,6 @@ export type Query = {
   posts: PaginatedPosts;
   post?: Maybe<Post>;
   me?: Maybe<User>;
-  confirmRegistration: UserResponse;
 };
 
 
@@ -121,11 +126,6 @@ export type QueryPostsArgs = {
 
 export type QueryPostArgs = {
   id: Scalars['Int'];
-};
-
-
-export type QueryConfirmRegistrationArgs = {
-  token: Scalars['String'];
 };
 
 export type User = {
@@ -193,17 +193,17 @@ export type ChangePasswordMutation = (
   ) }
 );
 
-export type ConfirmRegistrationQueryVariables = Exact<{
+export type ConfirmRegistrationMutationVariables = Exact<{
   token: Scalars['String'];
 }>;
 
 
-export type ConfirmRegistrationQuery = (
-  { __typename?: 'Query' }
-  & { confirmRegistration: (
-    { __typename?: 'UserResponse' }
-    & RegularUserResponseFragment
-  ) }
+export type ConfirmRegistrationMutation = (
+  { __typename?: 'Mutation' }
+  & { confirmRegistration?: Maybe<(
+    { __typename?: 'User' }
+    & RegularUserFragment
+  )> }
 );
 
 export type CreatePostMutationVariables = Exact<{
@@ -419,40 +419,38 @@ export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswo
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
 export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
 export const ConfirmRegistrationDocument = gql`
-    query ConfirmRegistration($token: String!) {
+    mutation ConfirmRegistration($token: String!) {
   confirmRegistration(token: $token) {
-    ...RegularUserResponse
+    ...RegularUser
   }
 }
-    ${RegularUserResponseFragmentDoc}`;
+    ${RegularUserFragmentDoc}`;
+export type ConfirmRegistrationMutationFn = Apollo.MutationFunction<ConfirmRegistrationMutation, ConfirmRegistrationMutationVariables>;
 
 /**
- * __useConfirmRegistrationQuery__
+ * __useConfirmRegistrationMutation__
  *
- * To run a query within a React component, call `useConfirmRegistrationQuery` and pass it any options that fit your needs.
- * When your component renders, `useConfirmRegistrationQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useConfirmRegistrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useConfirmRegistrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useConfirmRegistrationQuery({
+ * const [confirmRegistrationMutation, { data, loading, error }] = useConfirmRegistrationMutation({
  *   variables: {
  *      token: // value for 'token'
  *   },
  * });
  */
-export function useConfirmRegistrationQuery(baseOptions: Apollo.QueryHookOptions<ConfirmRegistrationQuery, ConfirmRegistrationQueryVariables>) {
+export function useConfirmRegistrationMutation(baseOptions?: Apollo.MutationHookOptions<ConfirmRegistrationMutation, ConfirmRegistrationMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ConfirmRegistrationQuery, ConfirmRegistrationQueryVariables>(ConfirmRegistrationDocument, options);
+        return Apollo.useMutation<ConfirmRegistrationMutation, ConfirmRegistrationMutationVariables>(ConfirmRegistrationDocument, options);
       }
-export function useConfirmRegistrationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ConfirmRegistrationQuery, ConfirmRegistrationQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ConfirmRegistrationQuery, ConfirmRegistrationQueryVariables>(ConfirmRegistrationDocument, options);
-        }
-export type ConfirmRegistrationQueryHookResult = ReturnType<typeof useConfirmRegistrationQuery>;
-export type ConfirmRegistrationLazyQueryHookResult = ReturnType<typeof useConfirmRegistrationLazyQuery>;
-export type ConfirmRegistrationQueryResult = Apollo.QueryResult<ConfirmRegistrationQuery, ConfirmRegistrationQueryVariables>;
+export type ConfirmRegistrationMutationHookResult = ReturnType<typeof useConfirmRegistrationMutation>;
+export type ConfirmRegistrationMutationResult = Apollo.MutationResult<ConfirmRegistrationMutation>;
+export type ConfirmRegistrationMutationOptions = Apollo.BaseMutationOptions<ConfirmRegistrationMutation, ConfirmRegistrationMutationVariables>;
 export const CreatePostDocument = gql`
     mutation CreatePost($input: PostInput!) {
   createPost(input: $input) {

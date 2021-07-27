@@ -8,7 +8,8 @@ export const htmlFromTemplate = async (template: Template, data: any) => {
   const fileName = `${template}.ejs`;
 
   try {
-    const filePath = path.join(__dirname, `../../templates/${fileName}`);
+    // const filePath = path.join(__dirname, `../../templates/${fileName}`);
+    const filePath = `./templates/${fileName}`;
 
     const templateFile = await readFile(filePath, {
       encoding: `utf-8`,
@@ -18,7 +19,7 @@ export const htmlFromTemplate = async (template: Template, data: any) => {
 
     return template;
   } catch (err) {
-    console.log({ error: err });
+    console.log({ htmlFromTemplateError: err });
 
     return new Error(
       `=== TEMPLATE ERROR: Unable to find template specified, "${fileName}" ===`,

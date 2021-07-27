@@ -178,7 +178,6 @@ export class PostsResolver {
     }
 
     if (!isValid) {
-      console.log(`THROWING ERROR`);
       throw new Error(
         `Invalid post input. Click "generate input" then submit post.`,
       );

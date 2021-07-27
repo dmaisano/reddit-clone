@@ -156,11 +156,6 @@ export class UserResolver {
     const token = `${email}:${v4()}`;
     const link = `${BASE_URL}/confirm-registration/${token}`;
 
-    console.log({
-      token,
-      link,
-    });
-
     const result = await sendEmail({
       to: email,
       subject: `dmaisano reddit clone app signup`,
@@ -188,23 +183,28 @@ export class UserResolver {
     return [];
   }
 
-  @Query(() => UserResponse)
+  @Mutation(() => User, { nullable: true })
   async confirmRegistration(
     @Arg("token") token: string,
     @Ctx() { req, redis }: MyContext,
-  ): Promise<UserResponse> {
+  ): Promise<User | null> {
     let user: User | null = null;
 
     try {
       const cachedUser = await redis.get(REGISTER_CONFIRMATION_PREFIX + token);
 
       if (!cachedUser) {
-        throw new Error(`Unable to confirm user with token: ${token}`);
+        throw new Error(
+          `Error. Please register and follow the instructions in the email.`,
+        );
       }
+
       user = JSON.parse(cachedUser);
 
-      console.log(user);
-      console.log(`user instanceof User: ${user instanceof User}`);
+      if (user) {
+        user.username = user.username.trim();
+        user.email = user.email.trim();
+      }
 
       user = await User.create({
         ...user, // redis contains the already hashed user password
@@ -215,27 +215,13 @@ export class UserResolver {
       // keep them logged in
       req.session.userId = user?.id;
 
-      return { user };
+      return user;
     } catch (err) {
       if (err?.code === "23505") {
-        return {
-          errors: [
-            {
-              field: "username",
-              message: "username already taken",
-            },
-          ],
-        };
+        throw new Error(`username already taken`);
       }
 
-      return {
-        errors: [
-          {
-            field: "unknown",
-            message: err,
-          },
-        ],
-      };
+      throw new Error((err as Error).message);
     }
   }
 
