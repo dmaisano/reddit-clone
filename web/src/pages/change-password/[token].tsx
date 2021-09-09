@@ -1,21 +1,19 @@
 import { Box, Button, Flex, Link } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { valueScaleCorrection } from "framer-motion/types/render/dom/projection/scale-correction";
 import { NextPage } from "next";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { passwordSchema } from "../../../../library/utils";
 import InputField from "../../components/InputField";
 import Layout from "../../components/Layout";
-import Wrapper from "../../components/Wrapper";
 import { SITE_TITLE } from "../../constants";
 import {
   MeDocument,
   MeQuery,
   useChangePasswordMutation,
 } from "../../generated/graphql";
+import { passwordSchema } from "../../utils/passwordSchema";
 import { toErrorMap } from "../../utils/toErrorMap";
 import withApollo from "../../utils/withApollo";
 

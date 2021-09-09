@@ -1,4 +1,3 @@
-import { useQuery } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Box, Center, Link, Text } from "@chakra-ui/layout";
 import { Form, Formik } from "formik";
@@ -6,17 +5,14 @@ import { NextPage } from "next";
 import Head from "next/head";
 import NextLink from "next/link";
 import React from "react";
-import { passwordSchema } from "../../../library/utils";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
 import { SITE_TITLE } from "../constants";
 import {
-  MeDocument,
-  MeQuery,
   useGenerateUsernameQuery,
-  useMeQuery,
   useRegisterMutation,
 } from "../generated/graphql";
+import { passwordSchema } from "../utils/passwordSchema";
 import { toErrorMap } from "../utils/toErrorMap";
 import withApollo from "../utils/withApollo";
 
