@@ -11,6 +11,7 @@ import {
   Root,
 } from "type-graphql";
 import { v4 } from "uuid";
+import { getRandomInt } from "../../../library/utils";
 import {
   BASE_URL,
   COOKIE_NAME,
@@ -156,6 +157,23 @@ export class UserResolver {
     }
 
     return User.findOne(req.session.userId);
+  }
+
+  @Query(() => String)
+  generateUsername() {
+    const generateUsernameRecursive = async () => {
+      const username = `test_user${getRandomInt(999999)}`;
+
+      const user = await User.findOne({ where: { username } });
+
+      if (!user) {
+        return username;
+      } else {
+        return generateUsernameRecursive();
+      }
+    };
+
+    return generateUsernameRecursive();
   }
 
   @Mutation(() => [FieldError])

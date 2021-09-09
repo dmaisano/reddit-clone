@@ -115,6 +115,7 @@ export type Query = {
   posts: PaginatedPosts;
   post?: Maybe<Post>;
   me?: Maybe<User>;
+  generateUsername: Scalars['String'];
 };
 
 
@@ -344,6 +345,14 @@ export type PostsQuery = (
       & PostSnippetFragment
     )> }
   ) }
+);
+
+export type GenerateUsernameQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GenerateUsernameQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'generateUsername'>
 );
 
 export const PostSnippetFragmentDoc = gql`
@@ -836,3 +845,35 @@ export function usePostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Post
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>;
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>;
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>;
+export const GenerateUsernameDocument = gql`
+    query GenerateUsername {
+  generateUsername
+}
+    `;
+
+/**
+ * __useGenerateUsernameQuery__
+ *
+ * To run a query within a React component, call `useGenerateUsernameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGenerateUsernameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGenerateUsernameQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGenerateUsernameQuery(baseOptions?: Apollo.QueryHookOptions<GenerateUsernameQuery, GenerateUsernameQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GenerateUsernameQuery, GenerateUsernameQueryVariables>(GenerateUsernameDocument, options);
+      }
+export function useGenerateUsernameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GenerateUsernameQuery, GenerateUsernameQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GenerateUsernameQuery, GenerateUsernameQueryVariables>(GenerateUsernameDocument, options);
+        }
+export type GenerateUsernameQueryHookResult = ReturnType<typeof useGenerateUsernameQuery>;
+export type GenerateUsernameLazyQueryHookResult = ReturnType<typeof useGenerateUsernameLazyQuery>;
+export type GenerateUsernameQueryResult = Apollo.QueryResult<GenerateUsernameQuery, GenerateUsernameQueryVariables>;

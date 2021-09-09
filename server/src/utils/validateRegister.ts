@@ -1,3 +1,4 @@
+import { VALID_USERNAME_RE } from "../../../library/constants";
 import { UsernamePasswordInput } from "../resolvers/UsernamePasswordInput";
 
 export const validateRegister = (options: UsernamePasswordInput) => {
@@ -9,11 +10,11 @@ export const validateRegister = (options: UsernamePasswordInput) => {
       },
     ];
   }
-  if (options.username.length <= 2) {
+  if (!options.username.match(VALID_USERNAME_RE)) {
     return [
       {
         field: `username`,
-        message: `length must be greater than 2`,
+        message: `invalid username. should be auto generated`,
       },
     ];
   }

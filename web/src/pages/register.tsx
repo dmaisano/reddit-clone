@@ -1,3 +1,4 @@
+import { useQuery } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Box, Center, Link, Text } from "@chakra-ui/layout";
 import { Form, Formik } from "formik";
@@ -9,14 +10,23 @@ import { passwordSchema } from "../../../library/utils";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
 import { SITE_TITLE } from "../constants";
-import { MeDocument, MeQuery, useRegisterMutation } from "../generated/graphql";
+import {
+  MeDocument,
+  MeQuery,
+  useGenerateUsernameQuery,
+  useMeQuery,
+  useRegisterMutation,
+} from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import withApollo from "../utils/withApollo";
 
 interface RegisterProps {}
 
 const Register: NextPage<RegisterProps> = ({}) => {
+  const { data: queryResult } = useGenerateUsernameQuery();
   const [register] = useRegisterMutation();
+
+  const username = queryResult?.generateUsername as string;
 
   return (
     <>
@@ -31,7 +41,6 @@ const Register: NextPage<RegisterProps> = ({}) => {
       <Formik
         initialValues={{
           email: "",
-          username: "",
           password: "",
           confirmPassword: "",
         }}
@@ -42,7 +51,7 @@ const Register: NextPage<RegisterProps> = ({}) => {
               options: {
                 email: values.email,
                 password: values.password,
-                username: values.username,
+                username,
               },
             },
           });
@@ -61,8 +70,10 @@ const Register: NextPage<RegisterProps> = ({}) => {
               <Form>
                 <InputField
                   name="username"
+                  value={username}
                   placeholder="username"
                   label="Username"
+                  disabled
                 />
                 <Box mt={4}>
                   <InputField
@@ -95,7 +106,7 @@ const Register: NextPage<RegisterProps> = ({}) => {
                   colorScheme="teal"
                   disabled={
                     Object.keys(errors).length > 0 ||
-                    values.username === "" ||
+                    username === "" ||
                     values.email === "" ||
                     values.confirmPassword.length <= 0 ||
                     values.password.length <= 0
