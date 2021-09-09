@@ -45,14 +45,6 @@ const main = async () => {
 
   app.set(`trust proxy`, 1);
 
-  // const CORS_ORIGIN: RegExp[] = [];
-  // (JSON.parse(process.env.CORS_ORIGIN) as string[]).map((origin) => {
-  //   CORS_ORIGIN.push(new RegExp(origin.trim()));
-  // });
-  // console.log(`CORS_ORIGIN `, CORS_ORIGIN);
-  const CORS_ORIGIN = new RegExp(process.env.CORS_ORIGIN.trim());
-  console.log({ CORS_ORIGIN });
-
   app.use(
     cors({
       origin: `*`,
@@ -85,6 +77,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostsResolver, UserResolver],
       validate: false,
     }),
+    introspection: __prod__,
     context: ({ req, res }): MyContext => ({
       req,
       res,
