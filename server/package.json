@@ -7,7 +7,7 @@
     "gen-env": "gen-env-types .env -o src/env.d.ts -e .",
     "build": "tsc",
     "watch": "tsc -w",
-    "dev": "nodemon dist/server/src/index.js",
+    "dev": "nodemon dist/src/index.js",
     "start": "node dist/src/index.js",
     "ts-node": "ts-node src/index.ts",
     "migration:create": "mikro-orm migration:create",

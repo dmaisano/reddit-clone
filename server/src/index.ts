@@ -45,9 +45,16 @@ const main = async () => {
 
   app.set(`trust proxy`, 1);
 
+  const CORS_ORIGIN = (JSON.parse(process.env.CORS_ORIGIN) as string[]).map(
+    (origin) => {
+      return new RegExp(origin);
+    },
+  );
+  console.log({ CORS_ORIGIN });
+
   app.use(
     cors({
-      origin: `*`,
+      origin: CORS_ORIGIN,
       credentials: true,
     }),
   );
