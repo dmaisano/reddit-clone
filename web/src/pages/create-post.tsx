@@ -3,7 +3,7 @@ import { Form, Formik } from "formik";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import { sleep } from "../../library/utils";
 import InputField from "../components/InputField";
 import Layout from "../components/Layout";
@@ -19,6 +19,7 @@ const CreatePost: NextPage<CreatePostProps> = ({}) => {
   const router = useRouter();
   useIsAuth();
   const [createPost] = useCreatePostMutation();
+  const [isDisabled, setDisabled] = useState(true);
 
   return (
     <>
@@ -69,7 +70,6 @@ const CreatePost: NextPage<CreatePostProps> = ({}) => {
                 style={{ opacity: `1` }}
                 name="title"
                 placeholder="title"
-                value={values.title}
                 label="Title"
                 disabled
               />
@@ -81,13 +81,17 @@ const CreatePost: NextPage<CreatePostProps> = ({}) => {
                   style={{ opacity: `1` }}
                   name="text"
                   placeholder="text..."
-                  value={values.text}
                   label="Body"
                   disabled
                 />
               </Box>
               <Button
-                onClick={() => generatePost(setValues)}
+                onClick={() => {
+                  if (isDisabled) {
+                    setDisabled(false);
+                  }
+                  return generatePost(setValues);
+                }}
                 mt={4}
                 w="full"
                 isLoading={isSubmitting}
@@ -101,6 +105,7 @@ const CreatePost: NextPage<CreatePostProps> = ({}) => {
                 type="submit"
                 isLoading={isSubmitting}
                 colorScheme="teal"
+                disabled={isDisabled}
               >
                 create post
               </Button>

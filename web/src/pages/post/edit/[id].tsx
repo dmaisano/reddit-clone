@@ -2,10 +2,11 @@ import { Box, Button } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import InputField from "../../../components/InputField";
 import Layout from "../../../components/Layout";
 import { useUpdatePostMutation } from "../../../generated/graphql";
+import { generatePost } from "../../../utils";
 import { useGetPostFromUrl } from "../../../utils/useGetPostFromUrl";
 import { useGetPostIntId } from "../../../utils/useGetPostIntId";
 import withApollo from "../../../utils/withApollo";
@@ -17,6 +18,7 @@ const EditPost: NextPage<EditPostProps> = ({}) => {
   const intId = useGetPostIntId();
   const { data, loading } = useGetPostFromUrl(intId);
   const [updatePost] = useUpdatePostMutation();
+  const [isDisabled, setDisabled] = useState(true);
 
   if (loading) {
     return (
@@ -43,7 +45,7 @@ const EditPost: NextPage<EditPostProps> = ({}) => {
           router.back();
         }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, setValues }) => (
           <Form>
             <InputField name="title" placeholder="title" label="Title" />
             <Box mt={4}>
@@ -55,11 +57,26 @@ const EditPost: NextPage<EditPostProps> = ({}) => {
               />
             </Box>
             <Button
+              onClick={() => {
+                if (isDisabled) {
+                  setDisabled(false);
+                }
+                return generatePost(setValues);
+              }}
+              mt={4}
+              w="full"
+              isLoading={isSubmitting}
+              colorScheme="telegram"
+            >
+              generate post
+            </Button>
+            <Button
               mt={4}
               w="full"
               type="submit"
               isLoading={isSubmitting}
               colorScheme="teal"
+              disabled={isDisabled}
             >
               update post
             </Button>
