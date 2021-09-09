@@ -23,6 +23,11 @@ import { createUserLoader } from "./utils/createUserLoader";
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
+    ssl: __prod__
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
     url: process.env.DATABASE_URL,
     logging: true,
     // synchronize: true,
