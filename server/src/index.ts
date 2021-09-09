@@ -41,8 +41,8 @@ const main = async () => {
   app.set(`trust proxy`, 1);
 
   const CORS_ORIGIN: RegExp[] = [];
-  process.env.CORS_ORIGIN.split(",").map((url) => {
-    CORS_ORIGIN.push(new RegExp(url.trim()));
+  (JSON.parse(process.env.CORS_ORIGIN) as string[]).map((origin) => {
+    CORS_ORIGIN.push(new RegExp(origin.trim()));
   });
   console.log(`CORS_ORIGIN `, CORS_ORIGIN);
 
