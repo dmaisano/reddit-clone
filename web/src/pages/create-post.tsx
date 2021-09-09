@@ -59,7 +59,7 @@ const CreatePost: NextPage<CreatePostProps> = ({}) => {
               router.push(`/`);
             } catch (error) {
               console.log({ error });
-              handlePostError(error);
+              handlePostError(error as any);
             }
           }}
         >

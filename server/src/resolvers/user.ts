@@ -111,9 +111,15 @@ export class UserResolver {
     @Arg("email") email: string,
     @Ctx() { redis }: MyContext,
   ) {
-    const user = await User.findOne({ where: email });
+    // const user = await User.findOne({ where: { email } });
+
+    // console.log({ email, user });
+    // return true;
+
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       // the email is not in the db
+      // we assume the email exists and display it as such to the user to prevent phishing
       return true;
     }
 
@@ -122,10 +128,22 @@ export class UserResolver {
       FORGET_PASSWORD_PREFIX + token,
       user.id,
       `ex`,
-      1000 * 60 * 60 * 24 * 3,
+      1000 * 60 * 60 * 24 * 3, // valid for 3 days
     );
-    const body = `<a href="http://localhost:3000/change-password/${token}">reset password</a>`;
-    // await sendEmail(email, body);
+
+    const link = `${BASE_URL}/change-password/${token}`;
+    const result = await sendEmail({
+      to: email,
+      subject: `dmaisano reddit clone app - forgot password`,
+      templateOption: `password-reset`,
+      data: {
+        link,
+      },
+    });
+
+    if (!result) {
+      throw new Error(`Error resetting user's password: ${email}`);
+    }
 
     return true;
   }
@@ -158,7 +176,7 @@ export class UserResolver {
 
     const result = await sendEmail({
       to: email,
-      subject: `dmaisano reddit clone app signup`,
+      subject: `dmaisano reddit clone app - registration`,
       templateOption: `register-confirmation`,
       data: {
         link,
@@ -209,6 +227,8 @@ export class UserResolver {
       user = await User.create({
         ...user, // redis contains the already hashed user password
       }).save();
+
+      await redis.del(REGISTER_CONFIRMATION_PREFIX + token);
 
       // store user id session
       // this will set a cookie on the user

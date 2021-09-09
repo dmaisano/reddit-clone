@@ -4,6 +4,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import React, { useState } from "react";
 import InputField from "../components/InputField";
+import Layout from "../components/Layout";
 import Wrapper from "../components/Wrapper";
 import { SITE_TITLE } from "../constants";
 import { useForgotPasswordMutation } from "../generated/graphql";
@@ -25,7 +26,7 @@ const ForgotPassword: NextPage<ForgotPasswordProps> = ({}) => {
           key="title"
         />
       </Head>
-      <Wrapper variant="small">
+      <Layout variant="small">
         <Formik
           initialValues={{ email: "" }}
           onSubmit={async (values) => {
@@ -60,7 +61,7 @@ const ForgotPassword: NextPage<ForgotPasswordProps> = ({}) => {
             )
           }
         </Formik>
-      </Wrapper>
+      </Layout>
     </>
   );
 };

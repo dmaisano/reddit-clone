@@ -8,6 +8,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import InputField from "../components/InputField";
+import Layout from "../components/Layout";
 import Wrapper from "../components/Wrapper";
 import { SITE_TITLE } from "../constants";
 import { MeDocument, MeQuery, useLoginMutation } from "../generated/graphql";
@@ -30,7 +31,7 @@ const Login: NextPage<LoginProps> = ({}) => {
           key="title"
         />
       </Head>
-      <Wrapper variant="small">
+      <Layout variant="small">
         <Formik
           initialValues={{ usernameOrEmail: "", password: "" }}
           onSubmit={async (values, { setErrors }) => {
@@ -91,7 +92,7 @@ const Login: NextPage<LoginProps> = ({}) => {
             </Form>
           )}
         </Formik>
-      </Wrapper>
+      </Layout>
     </>
   );
 };

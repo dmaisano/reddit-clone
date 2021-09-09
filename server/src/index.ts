@@ -8,7 +8,7 @@ import Redis from "ioredis";
 import path from "path";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
-import { ConnectionNotFoundError, createConnection } from "typeorm";
+import { createConnection } from "typeorm";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import { Post } from "./entities/Post";
 import { Updoot } from "./entities/Updoot";
@@ -19,7 +19,6 @@ import { UserResolver } from "./resolvers/user";
 import { MyContext } from "./types";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
 import { createUserLoader } from "./utils/createUserLoader";
-// import { emailConfig } from "./utils/emailConfig";
 
 const main = async () => {
   const conn = await createConnection({
@@ -39,7 +38,7 @@ const main = async () => {
   const RedisStore = connectRedis(session);
   const redis = new Redis(process.env.REDIS_URL);
 
-  app.set("trust proxy", 1);
+  app.set(`trust proxy`, 1);
 
   const CORS_ORIGIN: RegExp[] = [];
   process.env.CORS_ORIGIN.split(",").map((url) => {

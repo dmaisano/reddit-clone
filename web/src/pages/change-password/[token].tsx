@@ -1,11 +1,14 @@
 import { Box, Button, Flex, Link } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
+import { valueScaleCorrection } from "framer-motion/types/render/dom/projection/scale-correction";
 import { NextPage } from "next";
 import Head from "next/head";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { passwordSchema } from "../../../../library/utils";
 import InputField from "../../components/InputField";
+import Layout from "../../components/Layout";
 import Wrapper from "../../components/Wrapper";
 import { SITE_TITLE } from "../../constants";
 import {
@@ -33,13 +36,14 @@ const ChangePassword: NextPage<ChangePasswordProps> = () => {
           key="title"
         />
       </Head>
-      <Wrapper variant="small">
+      <Layout variant="small">
         <Formik
-          initialValues={{ newPassword: "" }}
+          initialValues={{ password: "", confirmPassword: "" }}
+          validationSchema={passwordSchema}
           onSubmit={async (values, { setErrors }) => {
             const response = await changePassword({
               variables: {
-                newPassword: values.newPassword,
+                newPassword: values.password,
                 token:
                   typeof router.query.token === "string"
                     ? router.query.token
@@ -67,14 +71,22 @@ const ChangePassword: NextPage<ChangePasswordProps> = () => {
             }
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, errors, values }) => (
             <Form>
               <InputField
-                name="newPassword"
+                name="password"
                 placeholder="new password"
                 label="New Password"
                 type="password"
               />
+              <Box mt={4}>
+                <InputField
+                  name="confirmPassword"
+                  placeholder="confirm password"
+                  label="Confirm Password"
+                  type="password"
+                />
+              </Box>
               {tokenError ? (
                 <Flex>
                   <Box mr={2} color="red">
@@ -90,13 +102,18 @@ const ChangePassword: NextPage<ChangePasswordProps> = () => {
                 type="submit"
                 isLoading={isSubmitting}
                 colorScheme="teal"
+                disabled={
+                  Object.keys(errors).length > 0 ||
+                  values.confirmPassword.length <= 0 ||
+                  values.password.length <= 0
+                }
               >
                 change password
               </Button>
             </Form>
           )}
         </Formik>
-      </Wrapper>
+      </Layout>
     </>
   );
 };

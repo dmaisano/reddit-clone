@@ -5,6 +5,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import NextLink from "next/link";
 import React from "react";
+import { passwordSchema } from "../../../library/utils";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
 import { SITE_TITLE } from "../constants";
@@ -28,10 +29,22 @@ const Register: NextPage<RegisterProps> = ({}) => {
         />
       </Head>
       <Formik
-        initialValues={{ email: "", username: "", password: "" }}
+        initialValues={{
+          email: "",
+          username: "",
+          password: "",
+          confirmPassword: "",
+        }}
+        validationSchema={passwordSchema}
         onSubmit={async (values, actions) => {
           const response = await register({
-            variables: { options: values },
+            variables: {
+              options: {
+                email: values.email,
+                password: values.password,
+                username: values.username,
+              },
+            },
           });
 
           const errors = response.data?.register;
@@ -42,7 +55,7 @@ const Register: NextPage<RegisterProps> = ({}) => {
           }
         }}
       >
-        {({ isSubmitting, status }) =>
+        {({ isSubmitting, values, status, errors }) =>
           !status?.success ? (
             <Wrapper variant="small">
               <Form>
@@ -67,11 +80,26 @@ const Register: NextPage<RegisterProps> = ({}) => {
                     type="password"
                   />
                 </Box>
+                <Box mt={4}>
+                  <InputField
+                    name="confirmPassword"
+                    placeholder="confirm password"
+                    label="Confirm Password"
+                    type="password"
+                  />
+                </Box>
                 <Button
                   mt={4}
                   type="submit"
                   isLoading={isSubmitting}
                   colorScheme="teal"
+                  disabled={
+                    Object.keys(errors).length > 0 ||
+                    values.username === "" ||
+                    values.email === "" ||
+                    values.confirmPassword.length <= 0 ||
+                    values.password.length <= 0
+                  }
                 >
                   register
                 </Button>

@@ -21,16 +21,18 @@ import {
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import { isServer } from "./isServer";
 
-const errorExchange: Exchange = ({ forward }) => (ops$) => {
-  return pipe(
-    forward(ops$),
-    tap(({ error }) => {
-      if (error?.message.includes("not authenticated")) {
-        Router.replace("/login");
-      }
-    }),
-  );
-};
+const errorExchange: Exchange =
+  ({ forward }) =>
+  (ops$) => {
+    return pipe(
+      forward(ops$),
+      tap(({ error }) => {
+        if (error?.message.includes("not authenticated")) {
+          Router.replace("/login");
+        }
+      }),
+    );
+  };
 
 const cursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
@@ -175,11 +177,11 @@ export const createUrqlClient: NextUrqlClientConfig = (ssrExchange, ctx) => {
                 { query: MeDocument },
                 _result,
                 (result, query) => {
-                  if (result.register.errors) {
+                  if (result.register) {
                     return query;
                   } else {
                     return {
-                      me: result.register.user,
+                      me: result.register,
                     };
                   }
                 },

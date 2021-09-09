@@ -14,6 +14,7 @@ import {
 import withApollo from "../../utils/withApollo";
 import NextLink from "next/link";
 import { sleep } from "../../../../library/utils";
+import Layout from "../../components/Layout";
 
 const Title = (
   <Head>
@@ -39,6 +40,7 @@ const ConfirmRegistration: NextPage<ConfirmRegistrationProps> = ({ token }) => {
 
   const confirm = async () => {
     await sleep(1000);
+    let isError = false;
 
     if (token && typeof token === "string") {
       try {
@@ -57,15 +59,14 @@ const ConfirmRegistration: NextPage<ConfirmRegistrationProps> = ({ token }) => {
           },
         });
       } catch (error) {
-        setState({
-          ...state,
-          isError: true,
-        });
+        isError = true;
         console.log({ error });
         alert((error as GraphQLError).message);
       } finally {
+        console.log({ state });
         setState({
           ...state,
+          isError,
           isLoading: false,
         });
       }
@@ -79,7 +80,7 @@ const ConfirmRegistration: NextPage<ConfirmRegistrationProps> = ({ token }) => {
 
   if (state?.isError) {
     return (
-      <>
+      <Layout variant="small">
         {Title}
         <Center style={{ height: "100vh" }}>
           <Box textAlign="center">
@@ -88,12 +89,12 @@ const ConfirmRegistration: NextPage<ConfirmRegistrationProps> = ({ token }) => {
             </Text>
           </Box>
         </Center>
-      </>
+      </Layout>
     );
   }
 
   return (
-    <>
+    <Layout variant="regular">
       {Title}
       <Center style={{ height: "100vh" }}>
         <Box textAlign="center">
@@ -116,7 +117,7 @@ const ConfirmRegistration: NextPage<ConfirmRegistrationProps> = ({ token }) => {
           )}
         </Box>
       </Center>
-    </>
+    </Layout>
   );
 };
 
