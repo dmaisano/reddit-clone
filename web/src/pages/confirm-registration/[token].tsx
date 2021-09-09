@@ -13,8 +13,8 @@ import {
 } from "../../generated/graphql";
 import withApollo from "../../utils/withApollo";
 import NextLink from "next/link";
-import { sleep } from "../../../../library/utils";
 import Layout from "../../components/Layout";
+import { sleep } from "../../../library/utils";
 
 const Title = (
   <Head>

@@ -11,7 +11,7 @@ import {
   Root,
 } from "type-graphql";
 import { v4 } from "uuid";
-import { getRandomInt } from "../../../library/utils";
+import { getRandomInt } from "../../library/utils";
 import {
   BASE_URL,
   COOKIE_NAME,

@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
-import mockPosts from "../../../library/constants/mock_posts";
-import { getRandomInt } from "../../../library/utils";
+import mockPosts from "../../library/constants/mock_posts";
+import { getRandomInt } from "../../library/utils";
 
 export const generatePost = (
   setValues: (

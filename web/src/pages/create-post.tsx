@@ -4,7 +4,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
-import { sleep } from "../../../library/utils";
+import { sleep } from "../../library/utils";
 import InputField from "../components/InputField";
 import Layout from "../components/Layout";
 import { SITE_TITLE } from "../constants";
