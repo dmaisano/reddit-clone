@@ -45,16 +45,9 @@ const main = async () => {
 
   app.set(`trust proxy`, 1);
 
-  const CORS_ORIGIN = (JSON.parse(process.env.CORS_ORIGIN) as string[]).map(
-    (origin) => {
-      return new RegExp(origin);
-    },
-  );
-  console.log({ CORS_ORIGIN });
-
   app.use(
     cors({
-      origin: CORS_ORIGIN,
+      origin: process.env.CORS_ORIGIN,
       credentials: true,
     }),
   );
@@ -74,7 +67,7 @@ const main = async () => {
         domain: __prod__ ? process.env.DOMAIN : undefined,
       },
       saveUninitialized: false,
-      secret: process.env.SESSION_SECRET,
+      secret: process.env.SECRET,
       resave: false,
     }),
   );
@@ -84,7 +77,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostsResolver, UserResolver],
       validate: false,
     }),
-    introspection: __prod__,
+    introspection: true,
     context: ({ req, res }): MyContext => ({
       req,
       res,

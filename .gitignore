@@ -7,3 +7,5 @@ pgdata/
 !.env.example
 
 deploy.sh
+
+*.rest
