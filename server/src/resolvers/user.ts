@@ -9,6 +9,7 @@ import {
   Query,
   Resolver,
   Root,
+  UseMiddleware,
 } from "type-graphql";
 import { v4 } from "uuid";
 import { getRandomInt } from "../../library/utils";
@@ -19,8 +20,10 @@ import {
   REGISTER_CONFIRMATION_PREFIX,
 } from "../constants";
 import { User } from "../entities/User";
+import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "../types";
 import { sendEmail } from "../utils/sendEmail";
+import { generateTokens } from "../utils/token";
 import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 
@@ -37,8 +40,23 @@ class UserResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
 
+  @Field(() => String, { nullable: true })
+  accessToken?: string;
+
+  @Field(() => String, { nullable: true })
+  refreshToken?: string;
+
   @Field(() => User, { nullable: true })
   user?: User | null;
+}
+
+@ObjectType()
+class Foo {
+  @Field(() => String, { nullable: true })
+  accessToken?: string;
+
+  @Field(() => String, { nullable: true })
+  refreshToken?: string;
 }
 
 @Resolver(User)
@@ -149,6 +167,11 @@ export class UserResolver {
     return true;
   }
 
+  @Query(() => Boolean)
+  fooBar() {
+    return false;
+  }
+
   @Query(() => User, { nullable: true })
   me(@Ctx() { req }: MyContext) {
     // you are not logged in
@@ -160,6 +183,7 @@ export class UserResolver {
   }
 
   @Query(() => String)
+  @UseMiddleware(isAuth)
   generateUsername() {
     const generateUsernameRecursive = async () => {
       const username = `test_user${getRandomInt(999999)}`;
@@ -267,7 +291,7 @@ export class UserResolver {
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
     @Arg("password") password: string,
-    @Ctx() { req }: MyContext,
+    @Ctx() {}: MyContext,
   ): Promise<UserResponse> {
     const user = await User.findOne({
       where: usernameOrEmail.includes("@")
@@ -296,10 +320,14 @@ export class UserResolver {
       };
     }
 
-    req.session.userId = user.id;
+    // req.session.userId = user.id;
+
+    const { accessToken, refreshToken } = generateTokens(user);
 
     return {
       user,
+      refreshToken,
+      accessToken,
     };
   }
 

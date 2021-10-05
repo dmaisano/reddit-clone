@@ -1,7 +1,16 @@
 import { Request, Response } from "express";
 import { Redis } from "ioredis";
+import { User } from "./entities/User";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
 import { createUserLoader } from "./utils/createUserLoader";
+
+declare module "express" {
+  export interface Request {
+    userId: number;
+    accessToken?: string;
+    refreshToken?: string;
+  }
+}
 
 declare module "express-session" {
   export interface SessionData {
