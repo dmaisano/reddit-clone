@@ -55,7 +55,8 @@ export class PostsResolver {
     @Root() { id: postId }: Post,
     @Ctx() { updootLoader, req }: MyContext,
   ) {
-    const { userId } = req.session;
+    // get token from header, check if userid is present
+    const { userId } = req;
 
     if (!userId) {
       return null;

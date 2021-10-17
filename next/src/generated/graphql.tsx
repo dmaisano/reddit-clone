@@ -141,6 +141,7 @@ export type User = {
 export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
+  accessToken?: Maybe<Scalars['String']>;
   user?: Maybe<User>;
 };
 
@@ -171,6 +172,7 @@ export type RegularUserFragment = (
 
 export type RegularUserResponseFragment = (
   { __typename?: 'UserResponse' }
+  & Pick<UserResponse, 'accessToken'>
   & { errors?: Maybe<Array<(
     { __typename?: 'FieldError' }
     & RegularErrorFragment
@@ -387,6 +389,7 @@ export const RegularUserResponseFragmentDoc = gql`
   errors {
     ...RegularError
   }
+  accessToken
   user {
     ...RegularUser
   }

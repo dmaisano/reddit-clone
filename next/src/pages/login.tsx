@@ -14,6 +14,8 @@ import { SITE_TITLE } from "../constants";
 import { MeDocument, MeQuery, useLoginMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import withApollo from "../utils/withApollo";
+import cookies from "js-cookie";
+import { setAccessToken } from "../utils/token";
 
 interface LoginProps {}
 
@@ -50,12 +52,17 @@ const Login: NextPage<LoginProps> = ({}) => {
             });
             if (response.data?.login.errors) {
               setErrors(toErrorMap(response.data.login.errors));
-            } else if (response.data?.login.user) {
-              if (typeof router.query.next === "string") {
-                router.push(router.query.next);
-              } else {
-                router.push(`/`);
-              }
+            } else if (
+              response.data?.login.user &&
+              response.data.login.accessToken
+            ) {
+              setAccessToken(response.data.login.accessToken);
+
+              // if (typeof router.query.next === "string") {
+              //   router.push(router.query.next);
+              // } else {
+              //   router.push(`/`);
+              // }
             }
           }}
         >

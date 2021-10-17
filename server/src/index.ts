@@ -45,13 +45,6 @@ const main = async () => {
 
   app.set(`trust proxy`, 1);
 
-  // const CORS_ORIGIN = (JSON.parse(process.env.CORS_ORIGIN) as string[]).map(
-  //   (origin) => {
-  //     return new RegExp(origin);
-  //   },
-  // );
-  // console.log({ CORS_ORIGIN });
-
   app.use(
     cors({
       origin: process.env.CORS_ORIGIN,
@@ -59,32 +52,32 @@ const main = async () => {
     }),
   );
 
-  app.use(
-    session({
-      name: COOKIE_NAME,
-      store: new RedisStore({
-        client: redis,
-        disableTouch: true,
-      }),
-      cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-        httpOnly: true,
-        sameSite: "lax", // csrf
-        secure: __prod__, // cookie only works in https
-        domain: __prod__ ? process.env.DOMAIN : undefined,
-      },
-      saveUninitialized: false,
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-    }),
-  );
+  // app.use(
+  //   session({
+  //     name: COOKIE_NAME,
+  //     store: new RedisStore({
+  //       client: redis,
+  //       disableTouch: true,
+  //     }),
+  //     cookie: {
+  //       maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+  //       httpOnly: true,
+  //       sameSite: "lax", // csrf
+  //       secure: __prod__, // cookie only works in https
+  //       domain: __prod__ ? process.env.DOMAIN : undefined,
+  //     },
+  //     saveUninitialized: false,
+  //     secret: process.env.ACCESS_TOKEN_SECRET,
+  //     resave: false,
+  //   }),
+  // );
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostsResolver, UserResolver],
       validate: false,
     }),
-    introspection: __prod__,
+    // introspection: true,
     context: ({ req, res }): MyContext => ({
       req,
       res,

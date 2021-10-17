@@ -23,6 +23,7 @@ import { MyContext } from "../types";
 import { sendEmail } from "../utils/sendEmail";
 import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import jwt from "jsonwebtoken";
 
 @ObjectType()
 class FieldError {
@@ -36,6 +37,9 @@ class FieldError {
 class UserResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
+
+  @Field(() => String, { nullable: true })
+  accessToken?: string;
 
   @Field(() => User, { nullable: true })
   user?: User | null;
@@ -296,9 +300,18 @@ export class UserResolver {
       };
     }
 
-    req.session.userId = user.id;
+    const accessToken = jwt.sign(
+      { userId: user.id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: `30d` },
+    );
+
+    // req.session.userId = user.id;
+
+    req.userId = user.id;
 
     return {
+      accessToken,
       user,
     };
   }
