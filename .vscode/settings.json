@@ -7,5 +7,14 @@
     "**/.DS_Store": true,
     "**/node_modules": true
   },
-  "cSpell.words": ["resave", "updoot"]
+  "cSpell.words": [
+    "browserslist",
+    "chakra",
+    "Chakra",
+    "codegen",
+    "resave",
+    "updoot",
+    "urql"
+  ],
+  "cSpell.ignoreWords": ["formik", "graphcache", "unfetch"]
 }
