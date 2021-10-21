@@ -10,14 +10,12 @@ export type RouterChakraLinkProps = PropsWithChildren<
 >;
 
 export const RouterChakraLink = ({
-  to,
-  replace,
   children,
-  ...chakraProps
+  ...props
 }: RouterChakraLinkProps) => {
   return (
-    <RouterLink to={to} replace={replace}>
-      <ChakraLink {...chakraProps}>{children}</ChakraLink>
-    </RouterLink>
+    <ChakraLink as={RouterLink} {...props}>
+      {children}
+    </ChakraLink>
   );
 };

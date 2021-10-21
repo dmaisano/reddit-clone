@@ -3,13 +3,6 @@ import { Redis } from "ioredis";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
 import { createUserLoader } from "./utils/createUserLoader";
 
-declare module "express" {
-  export interface Request {
-    userId: number;
-    accessToken?: string;
-  }
-}
-
 declare module "express-session" {
   export interface SessionData {
     userId: number;

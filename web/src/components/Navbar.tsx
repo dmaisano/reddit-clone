@@ -1,7 +1,6 @@
 import { useApolloClient } from "@apollo/client";
-import { Box, Button, Flex, Heading, Link } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading } from "@chakra-ui/react";
 import React from "react";
-import { RouterLink } from ".";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import { RouterChakraLink } from "./RouterChakraLink";
@@ -23,12 +22,10 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   else if (!data?.me) {
     body = (
       <>
-        <RouterLink to="/login">
-          <Link mr={2}>login</Link>
-        </RouterLink>
-        <RouterLink to="/register">
-          <Link>register</Link>
-        </RouterLink>
+        <RouterChakraLink mr={2} to="/login">
+          login
+        </RouterChakraLink>
+        <RouterChakraLink to="/register">register</RouterChakraLink>
       </>
     );
   }

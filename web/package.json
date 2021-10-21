@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -43,7 +43,8 @@
     "@graphql-codegen/typescript-react-apollo": "^3.1.6",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/node": "^16.11.1",
-    "@types/react-router-dom": "^5.3.1"
+    "@types/react-router-dom": "^5.3.1",
+    "cross-env": "^7.0.3"
   },
   "eslintConfig": {
     "extends": [

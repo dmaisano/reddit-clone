@@ -1,5 +1,3 @@
-import { Request } from "express";
-import { User } from "../entities/User";
 import jwt from "jsonwebtoken";
 
 export const tokenFromHeader = (header?: string) => {
@@ -11,18 +9,24 @@ export const tokenFromHeader = (header?: string) => {
   return null;
 };
 
-// export const getUserFromToken = (token: string): User | null => {
-//   const user = JSON.parse(jwt.verify(token, process.env.ACCESS_TOKEN_SECRET))
+export const userIdFromToken = (
+  token?: string | false | null,
+): Promise<number | null> => {
+  return new Promise((resolve, _) => {
+    if (!token) return resolve(null);
 
-//   return null;
-// }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+      if (err) return resolve(null);
 
-export const appendTokensToObj = (obj, req: Request) => {
-  const { accessToken } = req;
+      const { userId } = payload as any;
 
-  if (accessToken) {
-    obj.accessToken = accessToken;
-  }
+      if (userId && typeof userId === "number") {
+        return resolve(userId);
+      }
+    });
+  });
+};
 
-  return obj;
+export const userIdFromHeader = async (header?: string) => {
+  return userIdFromToken(tokenFromHeader(header));
 };

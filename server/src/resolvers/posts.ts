@@ -19,6 +19,11 @@ import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
 import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "../types";
+import {
+  tokenFromHeader,
+  userIdFromHeader,
+  userIdFromToken,
+} from "../utils/token";
 
 @InputType()
 class PostInput {
@@ -55,10 +60,9 @@ export class PostsResolver {
     @Root() { id: postId }: Post,
     @Ctx() { updootLoader, req }: MyContext,
   ) {
-    // get token from header, check if userid is present
-    const { userId } = req;
+    const userId = await userIdFromHeader(req.headers.authorization);
 
-    if (!userId) {
+    if (userId === null) {
       return null;
     }
 

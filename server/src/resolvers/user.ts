@@ -1,4 +1,5 @@
 import argon2 from "argon2";
+import jwt from "jsonwebtoken";
 import {
   Arg,
   Ctx,
@@ -21,9 +22,9 @@ import {
 import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { sendEmail } from "../utils/sendEmail";
+import { userIdFromHeader } from "../utils/token";
 import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
-import jwt from "jsonwebtoken";
 
 @ObjectType()
 class FieldError {
@@ -154,13 +155,15 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  me(@Ctx() { req }: MyContext) {
+  async me(@Ctx() { req }: MyContext) {
+    const userId = await userIdFromHeader(req.headers.authorization);
+
     // you are not logged in
-    if (!req.session.userId) {
+    if (userId === null || userId < 1) {
       return null;
     }
 
-    return User.findOne(req.session.userId);
+    return User.findOne(userId);
   }
 
   @Query(() => String)
@@ -307,8 +310,6 @@ export class UserResolver {
     );
 
     // req.session.userId = user.id;
-
-    req.userId = user.id;
 
     return {
       accessToken,

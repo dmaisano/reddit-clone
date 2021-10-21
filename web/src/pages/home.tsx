@@ -4,7 +4,7 @@ import EditDeletePostButtons from "../components/EditDeletePostButtons";
 import Layout from "../components/Layout";
 import { RouterChakraLink } from "../components/RouterChakraLink";
 import UpdootSection from "../components/UpdootSection";
-import { usePostsQuery } from "../generated/graphql";
+import { useMeQuery, usePostsQuery } from "../generated/graphql";
 interface HomePageProps {}
 
 const HomePage: React.FC<HomePageProps> = ({}) => {
@@ -15,6 +15,8 @@ const HomePage: React.FC<HomePageProps> = ({}) => {
     },
     notifyOnNetworkStatusChange: true,
   });
+
+  useMeQuery();
 
   return (
     <Layout>

@@ -20,34 +20,33 @@ const authMiddleware = new ApolloLink((operation, forward) => {
   operation.setContext(({ headers = {} }) => ({
     headers: {
       ...headers,
-      authorization: getAccessToken(),
+      authorization: `Bearer ${getAccessToken()}`,
     },
   }));
 
   return forward(operation);
 });
 
-export const apolloClient = () =>
-  new ApolloClient({
-    link: concat(authMiddleware, httpLink),
-    cache: new InMemoryCache({
-      typePolicies: {
-        Query: {
-          fields: {
-            posts: {
-              keyArgs: [],
-              merge(
-                existing: PaginatedPosts | undefined,
-                incoming: PaginatedPosts,
-              ): PaginatedPosts {
-                return {
-                  ...incoming,
-                  posts: [...(existing?.posts || []), ...incoming.posts],
-                };
-              },
+export const apolloClient = new ApolloClient({
+  link: concat(authMiddleware, httpLink),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          posts: {
+            keyArgs: [],
+            merge(
+              existing: PaginatedPosts | undefined,
+              incoming: PaginatedPosts,
+            ): PaginatedPosts {
+              return {
+                ...incoming,
+                posts: [...(existing?.posts || []), ...incoming.posts],
+              };
             },
           },
         },
       },
-    }),
-  });
+    },
+  }),
+});
