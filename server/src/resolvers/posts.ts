@@ -19,11 +19,7 @@ import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
 import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "../types";
-import {
-  tokenFromHeader,
-  userIdFromHeader,
-  userIdFromToken,
-} from "../utils/token";
+import { userIdFromHeader } from "../utils/token";
 
 @InputType()
 class PostInput {
@@ -78,9 +74,14 @@ export class PostsResolver {
     @Arg("value", () => Int) value: number,
     @Ctx() { req }: MyContext,
   ) {
+    const userId = await userIdFromHeader(req.headers.authorization);
+
+    if (userId === null) {
+      return false;
+    }
+
     const isUpdoot = value !== -1;
     const realValue = isUpdoot ? 1 : -1;
-    const { userId } = req.session;
 
     const updoot = await Updoot.findOne({ where: { postId, userId } });
 
@@ -172,6 +173,12 @@ export class PostsResolver {
     @Arg("input") input: PostInput,
     @Ctx() { req }: MyContext,
   ): Promise<Post | Error> {
+    const userId = await userIdFromHeader(req.headers.authorization);
+
+    if (userId === null) {
+      throw new Error(`Invalid user id.`);
+    }
+
     const { text, title } = input;
 
     let isValid = false;
@@ -188,7 +195,7 @@ export class PostsResolver {
       );
     }
 
-    return Post.create({ ...input, creatorId: req.session.userId }).save();
+    return Post.create({ ...input, creatorId: userId }).save();
   }
 
   @Mutation(() => Post)

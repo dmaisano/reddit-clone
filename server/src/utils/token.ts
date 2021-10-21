@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-export const tokenFromHeader = (header?: string) => {
+const tokenFromHeader = (header?: string) => {
   if (header && header.includes(`Bearer`)) {
     const split = header.split(`Bearer `);
     return split.length > 0 && split[1];
@@ -9,7 +9,7 @@ export const tokenFromHeader = (header?: string) => {
   return null;
 };
 
-export const userIdFromToken = (
+const userIdFromToken = (
   token?: string | false | null,
 ): Promise<number | null> => {
   return new Promise((resolve, _) => {
