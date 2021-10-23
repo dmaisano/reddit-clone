@@ -1,10 +1,10 @@
 import {
   ApolloClient,
   ApolloLink,
-  concat,
   createHttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import { onError } from "apollo-link-error";
 import { PaginatedPosts } from "./generated/graphql";
 import { getAccessToken } from "./utils/token";
 
@@ -15,7 +15,7 @@ const httpLink = createHttpLink({
   uri: API_URL,
 });
 
-const authMiddleware = new ApolloLink((operation, forward) => {
+const authLink = new ApolloLink((operation, forward) => {
   // add the authorization to the headers
   operation.setContext(({ headers = {} }) => ({
     headers: {
@@ -27,8 +27,21 @@ const authMiddleware = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    alert(graphQLErrors[0].message);
+    return window.location.reload();
+  }
+
+  if (networkError) {
+    alert(networkError.message);
+    return window.location.reload();
+  }
+});
+
 export const apolloClient = new ApolloClient({
-  link: concat(authMiddleware, httpLink),
+  // link: concat(authLink, httpLink),
+  link: errorLink.concat(authLink.concat(httpLink) as any) as any,
   cache: new InMemoryCache({
     typePolicies: {
       Query: {

@@ -1,4 +1,5 @@
 import { GraphQLError } from "graphql";
+import { useLocation } from "react-router-dom";
 import mockPosts from "../constants/mock_posts";
 
 /**
@@ -11,7 +12,7 @@ export const getRandomInt = (max: number) => {
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export const generatePost = (
-  setValues: (
+  setValues?: (
     values: React.SetStateAction<{
       title: string;
       text: string;
@@ -21,10 +22,12 @@ export const generatePost = (
 ) => {
   const { text, title } = mockPosts[getRandomInt(999)];
 
-  setValues({
-    text,
-    title,
-  });
+  if (typeof setValues === "function") {
+    setValues({
+      text,
+      title,
+    });
+  }
 
   return {
     text,
@@ -37,4 +40,8 @@ export const handlePostError = (error: GraphQLError | undefined) => {
     alert(error.message);
     return;
   }
+};
+
+export const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
 };

@@ -10,5 +10,5 @@ export const useIsAuth = () => {
     if (!loading && !data?.me) {
       history.replace(`/login?next=${location.pathname}`);
     }
-  }, [loading, data, history]);
+  }, [loading, data, history, location.pathname]);
 };

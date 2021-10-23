@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import InputField from "../components/InputField";
 import Layout from "../components/Layout";
 import { useCreatePostMutation } from "../generated/graphql";
-import { generatePost, handlePostError, sleep } from "../utils";
+import { generatePost, handlePostError } from "../utils";
 import { useIsAuth } from "../utils/useIsAuth";
 
 interface CreatePostPageProps {}
@@ -14,23 +14,17 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({}) => {
   const history = useHistory();
   useIsAuth();
   const [createPost] = useCreatePostMutation();
-  const [isDisabled, setDisabled] = useState(true);
+  const [post, setPost] = useState<{ text: string; title: string }>(
+    generatePost(),
+  );
 
   return (
-    <Layout variant="small">
+    <Layout>
       <Formik
-        initialValues={{ title: "", text: "" }}
-        onSubmit={async (values, actions) => {
+        initialValues={{ title: post.title, text: post.text }}
+        onSubmit={async ({ title, text }, actions) => {
           try {
-            let { text, title } = values;
-
-            // user probably didn't hit generate post, generate mock post and then submit
-            if (values.title === `` || values.text === ``) {
-              const mockPost = generatePost(actions.setValues);
-              title = mockPost.title;
-              text = mockPost.text;
-              await sleep(1000);
-            }
+            setPost(generatePost(actions.setValues));
 
             const { errors } = await createPost({
               variables: { input: { text, title } },
@@ -50,7 +44,7 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({}) => {
           }
         }}
       >
-        {({ isSubmitting, values, setValues }) => (
+        {({ isSubmitting, setValues }) => (
           <Form>
             <InputField
               style={{ opacity: `1` }}
@@ -63,7 +57,7 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({}) => {
               <InputField
                 textarea
                 // @ts-ignore
-                rows={8}
+                rows={12}
                 style={{ opacity: `1` }}
                 name="text"
                 placeholder="text..."
@@ -73,9 +67,6 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({}) => {
             </Box>
             <Button
               onClick={() => {
-                if (isDisabled) {
-                  setDisabled(false);
-                }
                 return generatePost(setValues);
               }}
               mt={4}
@@ -83,7 +74,7 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({}) => {
               isLoading={isSubmitting}
               colorScheme="telegram"
             >
-              generate post
+              re-generate post
             </Button>
             <Button
               mt={4}
@@ -91,7 +82,6 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({}) => {
               type="submit"
               isLoading={isSubmitting}
               colorScheme="teal"
-              disabled={isDisabled}
             >
               create post
             </Button>

@@ -8,6 +8,7 @@ import InputField from "../components/InputField";
 import Layout from "../components/Layout";
 import { RouterChakraLink } from "../components/RouterChakraLink";
 import { MeDocument, MeQuery, useLoginMutation } from "../generated/graphql";
+import { useQuery } from "../utils";
 import { toErrorMap } from "../utils/toErrorMap";
 import { setAccessToken } from "../utils/token";
 
@@ -15,6 +16,7 @@ interface LoginPageProps {}
 
 const LoginPage: React.FC<LoginPageProps> = ({}) => {
   const history = useHistory();
+  const query = useQuery();
   const [login] = useLoginMutation();
 
   return (
@@ -43,11 +45,12 @@ const LoginPage: React.FC<LoginPageProps> = ({}) => {
           ) {
             setAccessToken(response.data.login.accessToken);
 
-            // if (typeof router.query.next === "string") {
-            //   router.push(router.query.next);
-            // } else {
-            //   router.push(`/`);
-            // }
+            const next = query.get(`next`);
+            if (typeof next === "string") {
+              history.push(next);
+            } else {
+              history.push(`/`);
+            }
           }
         }}
       >

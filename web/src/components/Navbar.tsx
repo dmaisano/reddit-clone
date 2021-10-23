@@ -1,14 +1,16 @@
 import { useApolloClient } from "@apollo/client";
 import { Box, Button, Flex, Heading } from "@chakra-ui/react";
 import React from "react";
-import { useLogoutMutation, useMeQuery } from "../generated/graphql";
+import { useHistory } from "react-router";
+import { useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import { RouterChakraLink } from "./RouterChakraLink";
 
 interface NavbarProps {}
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
-  const [logout, { loading: logoutLoading }] = useLogoutMutation();
+  // const [logout, { loading: logoutLoading }] = useLogoutMutation();
+  const history = useHistory();
   const apolloClient = useApolloClient();
   const { data, loading } = useMeQuery({
     skip: isServer(),
@@ -39,10 +41,12 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={async () => {
-            await logout();
+            // await logout();
+            localStorage.removeItem(`access_token`);
             await apolloClient.resetStore();
+            history.push(`/`);
           }}
-          isLoading={logoutLoading}
+          // isLoading={logoutLoading}
           variant="link"
         >
           logout

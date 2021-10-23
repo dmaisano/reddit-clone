@@ -246,8 +246,13 @@ export class PostsResolver {
 
     // cascading delete
     //  onDelete: `CASCADE`
+
+    const userId = await userIdFromHeader(req.headers.authorization);
+    if (userId === null) {
+      throw new Error(`Invalid user id.`);
+    }
     try {
-      await Post.delete({ id, creatorId: req.session.userId });
+      await Post.delete({ id, creatorId: userId });
     } catch {
       return false;
     }

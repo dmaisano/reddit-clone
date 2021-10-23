@@ -1,4 +1,4 @@
-export default [
+export const mockPosts = [
   {
     title: "Little cormorant",
     text: "Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus.",
@@ -3997,3 +3997,5 @@ export default [
     text: "In congue. Etiam justo. Etiam pretium iaculis justo.",
   },
 ];
+
+export default mockPosts;
