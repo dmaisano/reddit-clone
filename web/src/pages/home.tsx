@@ -4,7 +4,7 @@ import EditDeletePostButtons from "../components/EditDeletePostButtons";
 import Layout from "../components/Layout";
 import { RouterChakraLink } from "../components/RouterChakraLink";
 import UpdootSection from "../components/UpdootSection";
-import { useMeQuery, usePostsQuery } from "../generated/graphql";
+import { usePostsQuery } from "../generated/graphql";
 interface HomePageProps {}
 
 const HomePage: React.FC<HomePageProps> = ({}) => {
@@ -16,22 +16,17 @@ const HomePage: React.FC<HomePageProps> = ({}) => {
     notifyOnNetworkStatusChange: true,
   });
 
-  useMeQuery();
-
   return (
     <Layout>
-      <br />
-      {!data ? (
-        loading ? (
-          <div>loading...</div>
-        ) : (
-          <div>
-            <div>no posts found</div>
-            <div>{error?.message}</div>
-          </div>
-        )
+      {loading ? (
+        <div>loading...</div>
+      ) : !data || data.posts.posts.length === 0 ? (
+        <div>
+          <div>no posts found</div>
+          <div>{error?.message}</div>
+        </div>
       ) : (
-        <Stack pt={8}>
+        <Stack py={8}>
           {data.posts.posts.map((p) =>
             !p ? null : (
               <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
@@ -58,6 +53,7 @@ const HomePage: React.FC<HomePageProps> = ({}) => {
           )}
         </Stack>
       )}
+
       {data && data.posts.hasMore ? (
         <Flex>
           <Button
@@ -68,26 +64,6 @@ const HomePage: React.FC<HomePageProps> = ({}) => {
                   cursor:
                     data.posts.posts[data.posts.posts.length - 1].createdAt,
                 },
-                // updateQuery: (
-                //   previousValues,
-                //   { fetchMoreResult },
-                // ): PostsQuery => {
-                //   if (fetchMoreResult) {
-                //     return previousValues as PostsQuery;
-                //   }
-
-                //   return {
-                //     __typename: `Query`,
-                //     posts: {
-                //       __typename: `PaginatedPosts`,
-                //       hasMore: (fetchMoreResult as PostsQuery).posts.hasMore,
-                //       posts: [
-                //         ...(previousValues as PostsQuery).posts.posts,
-                //         ...(fetchMoreResult as PostsQuery).posts.posts,
-                //       ],
-                //     },
-                //   };
-                // },
               });
             }}
             isLoading={loading}

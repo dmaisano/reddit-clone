@@ -22,7 +22,7 @@ import {
 import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { sendEmail } from "../utils/sendEmail";
-import { userIdFromHeader } from "../utils/token";
+import { generateAccessToken, userIdFromHeader } from "../utils/token";
 import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 
@@ -226,11 +226,11 @@ export class UserResolver {
     return [];
   }
 
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => UserResponse, { nullable: true })
   async confirmRegistration(
     @Arg("token") token: string,
-    @Ctx() { req, redis }: MyContext,
-  ): Promise<User | null> {
+    @Ctx() { redis }: MyContext,
+  ): Promise<UserResponse> {
     let user: User | null = null;
 
     try {
@@ -258,9 +258,11 @@ export class UserResolver {
       // store user id session
       // this will set a cookie on the user
       // keep them logged in
-      req.session.userId = user?.id;
+      // req.session.userId = user?.id;
 
-      return user;
+      const accessToken = generateAccessToken(user.id);
+
+      return { accessToken, user };
     } catch (err) {
       if (err?.code === "23505") {
         throw new Error(`username already taken`);
@@ -303,11 +305,7 @@ export class UserResolver {
       };
     }
 
-    const accessToken = jwt.sign(
-      { userId: user.id },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: `30d` },
-    );
+    const accessToken = generateAccessToken(user.id);
 
     // req.session.userId = user.id;
 

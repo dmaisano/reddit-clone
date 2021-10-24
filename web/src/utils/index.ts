@@ -11,6 +11,21 @@ export const getRandomInt = (max: number) => {
 
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+export const typesafeFilter = <T>(
+  arrayToFilter: any[],
+  filterFunc: (el: T) => boolean,
+): Array<T> => {
+  const res = new Array<T>();
+
+  for (const el of arrayToFilter) {
+    if (filterFunc(el)) {
+      res.push(el);
+    }
+  }
+
+  return res;
+};
+
 export const generatePost = (
   setValues?: (
     values: React.SetStateAction<{

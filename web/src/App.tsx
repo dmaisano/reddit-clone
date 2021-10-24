@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import BadRequest from "./components/BadRequest";
 import Navbar from "./components/Navbar";
+import ConfirmRegistrationPage from "./pages/confirm-registration";
 import CreatePostPage from "./pages/create-post";
 import ForgotPasswordPage from "./pages/forgot-password";
 import HomePage from "./pages/home";
@@ -16,8 +17,12 @@ function App() {
         <Switch>
           <Route exact path="/" component={HomePage}></Route>
           <Route path="/login" component={LoginPage}></Route>
-          <Route path="/register" component={RegisterPage}></Route>
           <Route path="/forgot-password" component={ForgotPasswordPage}></Route>
+          <Route path="/register" component={RegisterPage}></Route>
+          <Route
+            path="/confirm-registration/:token"
+            component={ConfirmRegistrationPage}
+          ></Route>
           <Route path="/create-post" component={CreatePostPage}></Route>
           <Route path="*">
             <BadRequest />

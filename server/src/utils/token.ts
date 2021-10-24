@@ -1,5 +1,14 @@
 import jwt from "jsonwebtoken";
 
+export const generateAccessToken = (
+  userId: number,
+  expiresIn: string | number | undefined = `30d`,
+) => {
+  return jwt.sign({ userId: userId }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn,
+  });
+};
+
 const tokenFromHeader = (header?: string) => {
   if (header && header.includes(`Bearer`)) {
     const split = header.split(`Bearer `);

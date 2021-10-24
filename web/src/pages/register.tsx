@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/button";
 import { Box, Center, Text } from "@chakra-ui/layout";
 import { Form, Formik } from "formik";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import InputField from "../components/InputField";
 import Layout from "../components/Layout";
 import { RouterChakraLink } from "../components/RouterChakraLink";
@@ -18,8 +18,13 @@ interface RegisterPageProps {}
 const RegisterPage: React.FC<RegisterPageProps> = ({}) => {
   const { data: queryResult } = useGenerateUsernameQuery();
   const [register] = useRegisterMutation();
+  const [username, setUsername] = useState("");
 
-  const username = queryResult?.generateUsername as string;
+  useEffect(() => {
+    if (typeof queryResult?.generateUsername === "string") {
+      setUsername(queryResult.generateUsername);
+    }
+  }, [queryResult?.generateUsername]);
 
   return (
     <Layout>
@@ -102,7 +107,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({}) => {
               </Form>
             </Wrapper>
           ) : (
-            <Center style={{ height: "100vh" }}>
+            <Center style={{ height: "90%" }}>
               <Box textAlign="center">
                 <Text fontSize="4xl" pb="2">
                   Submission successful ✔️

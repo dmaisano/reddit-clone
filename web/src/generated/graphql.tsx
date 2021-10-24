@@ -23,7 +23,7 @@ export type FieldError = {
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: UserResponse;
-  confirmRegistration?: Maybe<User>;
+  confirmRegistration?: Maybe<UserResponse>;
   createPost: Post;
   deletePost: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
@@ -172,7 +172,7 @@ export type ConfirmRegistrationMutationVariables = Exact<{
 }>;
 
 
-export type ConfirmRegistrationMutation = { __typename?: 'Mutation', confirmRegistration?: { __typename?: 'User', id: number, username: string } | null | undefined };
+export type ConfirmRegistrationMutation = { __typename?: 'Mutation', confirmRegistration?: { __typename?: 'UserResponse', accessToken?: string | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, user?: { __typename?: 'User', id: number, username: string } | null | undefined } | null | undefined };
 
 export type CreatePostMutationVariables = Exact<{
   input: PostInput;
@@ -333,10 +333,10 @@ export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePas
 export const ConfirmRegistrationDocument = gql`
     mutation ConfirmRegistration($token: String!) {
   confirmRegistration(token: $token) {
-    ...RegularUser
+    ...RegularUserResponse
   }
 }
-    ${RegularUserFragmentDoc}`;
+    ${RegularUserResponseFragmentDoc}`;
 export type ConfirmRegistrationMutationFn = Apollo.MutationFunction<ConfirmRegistrationMutation, ConfirmRegistrationMutationVariables>;
 
 /**

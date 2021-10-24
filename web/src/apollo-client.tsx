@@ -6,6 +6,7 @@ import {
 } from "@apollo/client";
 import { onError } from "apollo-link-error";
 import { PaginatedPosts } from "./generated/graphql";
+import { typesafeFilter } from "./utils";
 import { getAccessToken } from "./utils/token";
 
 const API_URL = process.env.REACT_APP_PUBLIC_API;
@@ -29,11 +30,30 @@ const authLink = new ApolloLink((operation, forward) => {
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    alert(graphQLErrors[0].message);
+    const error = graphQLErrors[0];
+
+    console.error({ graphql_error_reporter: error.message });
+    alert(error.message);
+
+    if (error.path?.length) {
+      const path = typesafeFilter<string>(
+        error.path as any,
+        (el) => typeof el === "string",
+      )[0];
+
+      switch (path) {
+        case "confirmRegistration":
+          return;
+        default:
+          break;
+      }
+    }
+
     return window.location.reload();
   }
 
   if (networkError) {
+    console.error({ network_error_reporter: networkError.message });
     alert(networkError.message);
     return window.location.reload();
   }

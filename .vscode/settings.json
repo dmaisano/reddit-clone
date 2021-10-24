@@ -13,6 +13,7 @@
     "Chakra",
     "codegen",
     "resave",
+    "typesafe",
     "updoot",
     "urql"
   ],

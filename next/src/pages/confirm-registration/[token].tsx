@@ -85,7 +85,7 @@ const ConfirmRegistration: NextPage<ConfirmRegistrationProps> = ({ token }) => {
         <Center style={{ height: "100vh" }}>
           <Box textAlign="center">
             <Text fontSize="4xl" pb="2">
-              Error occured.
+              Error occurred.
             </Text>
           </Box>
         </Center>
