@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import BadRequest from "./components/BadRequest";
 import Navbar from "./components/Navbar";
+import ChangePasswordPage from "./pages/change-password";
 import ConfirmRegistrationPage from "./pages/confirm-registration";
 import CreatePostPage from "./pages/create-post";
 import ForgotPasswordPage from "./pages/forgot-password";
@@ -16,8 +17,13 @@ function App() {
         <Navbar />
         <Switch>
           <Route exact path="/" component={HomePage}></Route>
-          <Route path="/login" component={LoginPage}></Route>
+
           <Route path="/forgot-password" component={ForgotPasswordPage}></Route>
+          <Route
+            path="/change-password/:token"
+            component={ChangePasswordPage}
+          ></Route>
+          <Route path="/login" component={LoginPage}></Route>
           <Route path="/register" component={RegisterPage}></Route>
           <Route
             path="/confirm-registration/:token"

@@ -13,7 +13,6 @@ import {
 import { v4 } from "uuid";
 import {
   BASE_URL,
-  COOKIE_NAME,
   FORGET_PASSWORD_PREFIX,
   REGISTER_CONFIRMATION_PREFIX,
 } from "../constants";
@@ -48,11 +47,16 @@ class UserResponse {
 @Resolver(User)
 export class UserResolver {
   @FieldResolver(() => String)
-  email(@Root() user: User, @Ctx() { req }: MyContext) {
+  async email(@Root() user: User, @Ctx() { req }: MyContext) {
     // this is the current user and its ok to show them their own email
-    if (req.session.userId === user.id) {
+    const userId = await userIdFromHeader(req.headers.authorization);
+    if (userId === user.id) {
       return user.email;
     }
+
+    // if (req.session.userId === user.id) {
+    //   return user.email;
+    // }
 
     // current user wants to see someone elses email
     return "";
@@ -62,7 +66,7 @@ export class UserResolver {
   async changePassword(
     @Arg("token") token: string,
     @Arg("newPassword") newPassword: string,
-    @Ctx() { redis, req }: MyContext,
+    @Ctx() { redis }: MyContext,
   ): Promise<UserResponse> {
     if (newPassword.length <= 2) {
       return {
@@ -106,9 +110,11 @@ export class UserResolver {
     await redis.del(key);
 
     // log in user after change password
-    req.session.userId = user.id;
+    // req.session.userId = user.id;
 
-    return { user };
+    const accessToken = generateAccessToken(user.id);
+
+    return { accessToken, user };
   }
 
   @Mutation(() => Boolean)
@@ -315,18 +321,21 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  logout(@Ctx() { req, res }: MyContext) {
-    return new Promise((resolve) =>
-      req.session.destroy((err) => {
-        res.clearCookie(COOKIE_NAME);
-        if (err) {
-          console.log(err);
-          resolve(false);
-          return;
-        }
+  logout(@Ctx() {}: MyContext) {
+    return new Promise(
+      (resolve) => resolve(true),
 
-        resolve(true);
-      }),
+      // ? deprecated
+      // req.session.destroy((err) => {
+      //   res.clearCookie(COOKIE_NAME);
+      //   if (err) {
+      //     console.log(err);
+      //     resolve(false);
+      //     return;
+      //   }
+
+      //   resolve(true);
+      // }),
     );
   }
 }

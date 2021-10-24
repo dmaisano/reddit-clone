@@ -74,10 +74,6 @@ const LoginPage: React.FC<LoginPageProps> = ({}) => {
               <RouterChakraLink ml="auto" to="/forgot-password">
                 forgot password
               </RouterChakraLink>
-
-              {/* <NextLink href="/forgot-password">
-                <Link ml="auto">forgot password?</Link>
-              </NextLink> */}
             </Flex>
             <Button
               mt={4}
