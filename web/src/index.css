@@ -2,6 +2,10 @@ iframe {
   display: none !important;
 }
 
+*[disabled] {
+  opacity: 1 !important;
+}
+
 html,
 body,
 #root,

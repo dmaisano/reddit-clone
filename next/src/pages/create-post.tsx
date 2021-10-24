@@ -77,7 +77,7 @@ const CreatePost: NextPage<CreatePostProps> = ({}) => {
                 <InputField
                   textarea
                   // @ts-ignore
-                  rows={8}
+                  rows={12}
                   style={{ opacity: `1` }}
                   name="text"
                   placeholder="text..."

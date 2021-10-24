@@ -2,11 +2,12 @@ import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { Box, IconButton } from "@chakra-ui/react";
 // import NextLink from "next/link";
 import React from "react";
+import { useHistory, useLocation } from "react-router";
 import { useDeletePostMutation, useMeQuery } from "../generated/graphql";
 import { RouterChakraLink } from "./RouterChakraLink";
 
 interface EditDeletePostButtonsProps {
-  id: number;
+  id?: number;
   creatorId: number;
 }
 
@@ -15,6 +16,8 @@ const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
   creatorId,
 }) => {
   const { data: meData } = useMeQuery();
+  const location = useLocation();
+  const history = useHistory();
   const [deletePost] = useDeletePostMutation();
 
   if (meData?.me?.id !== creatorId) {
@@ -34,15 +37,22 @@ const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
       <IconButton
         aria-label="Delete Post"
         color="red.400"
+        disabled={!id}
         onClick={() => {
-          deletePost({
-            variables: { id },
-            update: (cache) => {
-              cache.evict({
-                id: `Post:${id}`,
-              });
-            },
-          });
+          if (id) {
+            deletePost({
+              variables: { id },
+              update: (cache) => {
+                cache.evict({
+                  id: `Post:${id}`,
+                });
+              },
+            });
+
+            if (location.pathname.match(/^\/post\/[0-9]+$/g)) {
+              history.push(`/`);
+            }
+          }
         }}
         icon={<DeleteIcon />}
       />

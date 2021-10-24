@@ -21,6 +21,30 @@ import mockPosts from "../mock_posts";
 import { MyContext } from "../types";
 import { userIdFromHeader } from "../utils/token";
 
+const validatePostInput = ({
+  title,
+  text,
+}: {
+  title: string;
+  text: string;
+}) => {
+  let isValid = false;
+  for (const post of mockPosts) {
+    if (title === post.title && text === post.text) {
+      isValid = true;
+      break;
+    }
+  }
+
+  if (!isValid) {
+    throw new Error(
+      `Invalid post input. Click "generate post" then submit post.`,
+    );
+  }
+
+  return isValid;
+};
+
 @InputType()
 class PostInput {
   @Field()
@@ -179,21 +203,7 @@ export class PostsResolver {
       throw new Error(`Invalid user id.`);
     }
 
-    const { text, title } = input;
-
-    let isValid = false;
-    for (const post of mockPosts) {
-      if (title === post.title && text === post.text) {
-        isValid = true;
-        break;
-      }
-    }
-
-    if (!isValid) {
-      throw new Error(
-        `Invalid post input. Click "generate input" then submit post.`,
-      );
-    }
+    validatePostInput(input);
 
     return Post.create({ ...input, creatorId: userId }).save();
   }
@@ -206,13 +216,21 @@ export class PostsResolver {
     @Arg("text") text: string,
     @Ctx() { req }: MyContext,
   ): Promise<Post | null> {
+    const userId = await userIdFromHeader(req.headers.authorization);
+
+    if (userId === null) {
+      throw new Error(`Invalid user id.`);
+    }
+
+    validatePostInput({ text, title });
+
     const result = await getConnection()
       .createQueryBuilder()
       .update(Post)
       .set({ title, text })
       .where(`id = :id and "creatorId" = :creatorId`, {
         id,
-        creatorId: req.session.userId,
+        creatorId: userId,
       })
       .returning(`*`)
       .execute();
