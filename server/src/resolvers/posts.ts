@@ -13,11 +13,11 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { getConnection } from "typeorm";
-import mockPosts from "../../library/constants/mock_posts";
 import { Post } from "../entities/Post";
 import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
 import { isAuth } from "../middleware/isAuth";
+import mockPosts from "../mock_posts";
 import { MyContext } from "../types";
 import { userIdFromHeader } from "../utils/token";
 

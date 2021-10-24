@@ -1,5 +1,4 @@
 import argon2 from "argon2";
-import jwt from "jsonwebtoken";
 import {
   Arg,
   Ctx,
@@ -12,7 +11,6 @@ import {
   Root,
 } from "type-graphql";
 import { v4 } from "uuid";
-import { getRandomInt } from "../../library/utils";
 import {
   BASE_URL,
   COOKIE_NAME,
@@ -21,6 +19,7 @@ import {
 } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
+import { getRandomInt } from "../utils";
 import { sendEmail } from "../utils/sendEmail";
 import { generateAccessToken, userIdFromHeader } from "../utils/token";
 import { validateRegister } from "../utils/validateRegister";
