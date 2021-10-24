@@ -1,4 +1,14 @@
-import React from "react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
+} from "@chakra-ui/react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import BadRequest from "./components/BadRequest";
 import Navbar from "./components/Navbar";
@@ -12,9 +22,58 @@ import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import ViewPostPage from "./pages/view-post";
 
-function App() {
+const App = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const KEY = `USER_ACKNOWLEDGEMENT`;
+  const USER_ACKNOWLEDGEMENT = localStorage.getItem(KEY);
+  const modalHasBeenOpened = !!USER_ACKNOWLEDGEMENT;
+
+  useEffect(() => {
+    console.log({ modalHasBeenOpened });
+
+    if (!modalHasBeenOpened) {
+      onOpen();
+    } else {
+    }
+  }, [modalHasBeenOpened, onOpen]);
+
+  const closeHandler = () => {
+    localStorage.setItem(KEY, JSON.stringify(true));
+    onClose();
+  };
+
   return (
     <div className="App">
+      <Modal
+        closeOnEsc={false}
+        closeOnOverlayClick={false}
+        isOpen={isOpen}
+        onClose={closeHandler}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader textAlign="center" fontSize="3xl">
+            Disclaimer ⚠
+          </ModalHeader>
+          <ModalBody fontSize="xl">
+            User input has been restricted by design. This can be seen when
+            registering and creating posts. The registration username and post
+            input fields are randomly generated and disabled for custom user
+            input. To create or update a post simply click the{" "}
+            <i>
+              <b>"generate post"</b>
+            </i>
+            button.
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" width="100%" onClick={closeHandler}>
+              Acknowledge
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       <BrowserRouter>
         <Navbar />
         <Switch>
@@ -47,6 +106,6 @@ function App() {
       </BrowserRouter>
     </div>
   );
-}
+};
 
 export default App;
